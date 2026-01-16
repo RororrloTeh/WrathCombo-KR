@@ -4,7 +4,7 @@
     </p>
     <h1 style="text-align:center;" align="center">Wrath Combo</h1>
     <p style="text-align:center;" align="center">
-        Condenses combos and mutually exclusive abilities onto a single button - and then some.
+        콤보 공격과 상호 배타적인 능력을 하나의 버튼으로 압축한 다음 일부 버튼으로 압축합니다.
     </p>
 </section>
 
@@ -36,22 +36,21 @@
 
 <section id="about">
 
-# About Wrath Combo
+# Wrath Combo 소개
 
-<p> Wrath Combo is a plugin for <a href="https://goatcorp.github.io/" alt="XIVLauncher">XIVLauncher</a>.<br><br>
-    It's a heavily enhanced version of the XIVCombo plugin, offering highly 
-    customisable features and options to allow users to have their 
-    rotations be as complex or simple as possible, even to the point of a single
-    button; for PvE, PvP, and more.
+<p> Wrath Combo는 <a href="https://goatcorp.github.io/" alt="XIVLauncher">XIVLuncher</a>용 플러그인입니다.<br><br>
+    이는 XIVCombo 플러그인을 대폭 강화한 버전으로, 
+    사용자가 PvE, PvP 등 다양한 콘텐츠에서 자신만의 딜/힐사이클을 가능한 한 세밀하게 또는 단순하게
+    심지어 단일 버튼 수준까지 설정할 수 있도록 커스터마이즈 가능한 기능과 옵션을 제공합니다.”
     <br><br>
-    Wrath Combo is regularly updated to include new features and to keep
-    up-to-date with the latest job changes in Final Fantasy XIV.
+    Wrath Combo는 새로운 기능을 추가하고 파이널 판타지 XIV의
+    최신 직업 변경 사항을 반영하기 위해 정기적으로 업데이트됩니다.
     <br><br>
     <img src="/res/readme_images/demo.gif" width="450" />
     <br>
-    In that clip, the plugin is configured to condense the entire rotation of a 
-    job onto a single button, and that button is being pressed repeatedly -
-    all actions executed are being shown on a timeline for demonstration.
+    해당 클립에서는 플러그인이 특정 직업의 전체 딜/힐사이클을 
+    단일 버튼으로 압축하도록 설정되어 있으며, 그 버튼을 반복해서 누르고 있습니다.
+    시연을 위해 실행된 모든 기술은 타임라인에 표시됩니다.
 </p>
 </section>
 
@@ -62,21 +61,20 @@
 
 <img src="/res/readme_images/adding_repo.jpg" width="450" />
 
-Open the Dalamud Settings menu in game and follow the steps below.
-This can be done through the button at the bottom of the plugin installer or by
-typing `/xlsettings` in the chat.
+게임 내에서 Dalamud 설정 메뉴를 열고 아래의 단계를 따라주세요.
+이는 플러그인 설치 관리자 하단의 버튼을 통해서도 가능하며,
+채팅창에 `/xlsettings` 를 입력해서도 열 수 있습니다.
 
-1. Under Custom Plugin Repositories, enter `https://love.puni.sh/ment.json` into the
-   empty box at the bottom.
-2. Click the "+" button.
-3. Click the "Save and Close" button.
+1. Custom Plugin Repositories 항목에서 하단의 빈 입력란에 `https://love.puni.sh/ment.json` 을 입력합니다.
+2. "+" 버튼을 클릭합니다.
+3. "Save and Close" 버튼을 클릭합니다.
 
-Open the Dalamud Plugin Installer menu in game and follow the steps below.
-This can be done through `/xlplugins` in the chat.
+게임 내에서 Dalamud 플러그인 설치 관리자 메뉴를 열고 아래의 단계를 따라주세요.
+이는 채팅창에 `/xlplugins` 를 입력하여 열 수 있습니다.
 
-1. Click the "All Plugins" tab on the left.
-2. Search for "Wrath Combo".
-3. Click the "Install" button.
+1. 왼쪽의 "All Plugins" 탭을 클릭합니다.
+2. "Wrath Combo" 를 검색합니다.
+3. "Install" 버튼을 클릭합니다.
 
 <p align="right"><a href="#top" alt="Back to top"><img src=/res/readme_images/arrowhead-up.png width ="25"/></a></p>
 </section> <br>
@@ -84,24 +82,22 @@ This can be done through `/xlplugins` in the chat.
 <!-- Features -->
 <section>
 
-# Features
+# 기능
 
-Below you can find a small example of some of the features and options we offer in
-Wrath Combo. <br>
-Please note, this is just an excerpt and is not representative of the full
-feature-set.
+아래에서는 Wrath Combo에서 제공하는 기능과 옵션 중 일부를 간단한 예시로 확인하실 수 있습니다. <br>
+참고로, 이것은 일부 발췌일 뿐이며 전체 기능을 모두 보여주는 것은 아닙니다.
 
 
-  <details><summary>PvE Features</summary> <br>
+  <details><summary>PvE 기능</summary> <br>
 
- - "Simple" (one-button) Mode for many jobs
- - "Advanced" Mode for many jobs, get as simple as you want
- - Auto-Rotation, to execute your rotation automatically, based on your settings
- - Variant Dungeon specific features
+ - 많은 직업에서 사용할 수 있는 "간단" (원버튼) 모드
+ - 많은 직업에서 사용할 수 있는 "고급" 모드, 원하는 만큼 단순하게 조정 가능
+ - 자동 딜/힐 사이클, 설정에 따라 딜/힐사이클을 자동으로 실행
+ - 변형 던전 전용 기능
 <br><br>
- - Tank Double Reprisal Protection
- - Tank Interrupt Feature
- - Healer Raise Feature
+ - 탱커용 기술 앙갚음 겹침 보호
+ - 탱커용 기술 끊기 기능
+ - 힐러용 부활 기능
  - Magical Ranged DPS Double Addle Protection
  - Magical Ranged DPS Raise Feature
  - Melee DPS Double Feint Protection
