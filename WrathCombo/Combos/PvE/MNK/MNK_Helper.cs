@@ -63,25 +63,25 @@ internal partial class MNK
             case false when
                 ActionReady(PerfectBalance) && !HasStatusEffect(Buffs.PerfectBalance) &&
                 !HasStatusEffect(Buffs.FormlessFist) && IsOriginal(MasterfulBlitz) &&
-                HasBattleTarget():
+                HasBattleTarget() && !JustUsed(PerfectBalance):
             {
                 // Odd window
-                if ((JustUsed(OriginalHook(Bootshine), GCD) || JustUsed(DragonKick, GCD)) &&
+                if ((JustUsed(OriginalHook(Bootshine), GCD * 3) || JustUsed(DragonKick, GCD * 3)) &&
                     !JustUsed(PerfectBalance, 20) && HasStatusEffect(Buffs.RiddleOfFire) && !HasStatusEffect(Buffs.Brotherhood))
                     return true;
 
                 // Even window first use
-                if ((JustUsed(OriginalHook(Bootshine), GCD) || JustUsed(DragonKick, GCD)) &&
+                if ((JustUsed(OriginalHook(Bootshine), GCD * 3) || JustUsed(DragonKick, GCD * 3)) &&
                     GetCooldownRemainingTime(Brotherhood) <= GCD * 3 && GetCooldownRemainingTime(RiddleOfFire) <= GCD * 3)
                     return true;
 
                 // Even window second use
-                if ((JustUsed(OriginalHook(Bootshine), GCD) || JustUsed(DragonKick, GCD)) &&
+                if ((JustUsed(OriginalHook(Bootshine), GCD * 3) || JustUsed(DragonKick, GCD * 3)) &&
                     HasStatusEffect(Buffs.Brotherhood) && HasStatusEffect(Buffs.RiddleOfFire) && !HasStatusEffect(Buffs.FiresRumination))
                     return true;
 
                 // Low level
-                if ((JustUsed(OriginalHook(Bootshine), GCD) || JustUsed(DragonKick, GCD)) &&
+                if ((JustUsed(OriginalHook(Bootshine), GCD * 3) || JustUsed(DragonKick, GCD * 3)) &&
                     (HasStatusEffect(Buffs.RiddleOfFire) && !LevelChecked(Brotherhood) ||
                      !LevelChecked(RiddleOfFire)))
                     return true;
@@ -89,7 +89,7 @@ internal partial class MNK
             }
 
             case true when
-                ActionReady(PerfectBalance) && !HasStatusEffect(Buffs.PerfectBalance) &&
+                ActionReady(PerfectBalance) && !HasStatusEffect(Buffs.PerfectBalance) && !JustUsed(PerfectBalance) &&
                 !HasStatusEffect(Buffs.FormlessFist) && targetCheck && IsOriginal(MasterfulBlitz) &&
                 GetTargetHPPercent() >= MNK_AoE_PerfectBalanceHPThreshold:
             {
@@ -410,7 +410,8 @@ internal partial class MNK
     //Brotherhood
     private static bool CanBrotherhood() =>
         ActionReady(Brotherhood) &&
-        ActionReady(RiddleOfFire);
+        ActionReady(RiddleOfFire) &&
+        (InBossEncounter() || TimeStoodStill.Seconds >= 2);
 
     //RoW
     private static bool CanRoW() =>
@@ -456,108 +457,6 @@ internal partial class MNK
     internal static MNKLvl100LLOpener Lvl100LLOpener = new();
     internal static MNKLvl90SLOpener Lvl90SLOpener = new();
     internal static MNKLvl100SLOpener Lvl100SLOpener = new();
-
-    internal class MNKLvl100LLOpener : WrathOpener
-    {
-        public override int MinOpenerLevel => 100;
-
-        public override int MaxOpenerLevel => 109;
-
-        public override List<uint> OpenerActions { get; set; } =
-        [
-            ForbiddenMeditation,
-            FormShift,
-            DragonKick,
-            PerfectBalance,
-            LeapingOpo,
-            DragonKick,
-            Brotherhood,
-            RiddleOfFire,
-            LeapingOpo,
-            TheForbiddenChakra,
-            RiddleOfWind,
-            ElixirBurst,
-            DragonKick,
-            WindsReply,
-            FiresReply,
-            LeapingOpo,
-            PerfectBalance,
-            DragonKick,
-            LeapingOpo,
-            DragonKick,
-            ElixirBurst,
-            LeapingOpo
-        ];
-
-        public override List<(int[] Steps, Func<bool> Condition)> SkipSteps { get; set; } =
-        [
-            ([1], () => Chakra >= 5),
-            ([2], () => JustUsed(FormShift, 30f))
-        ];
-
-        internal override UserData ContentCheckConfig => MNK_Balance_Content;
-        public override Preset Preset => Preset.MNK_STUseOpener;
-        public override bool HasCooldowns() =>
-            GetRemainingCharges(PerfectBalance) is 2 &&
-            IsOffCooldown(Brotherhood) &&
-            IsOffCooldown(RiddleOfFire) &&
-            IsOffCooldown(RiddleOfWind) &&
-            NadiFlag is Nadi.None &&
-            OpoOpoStacks is 0 &&
-            RaptorStacks is 0 &&
-            CoeurlStacks is 0;
-    }
-
-    internal class MNKLvl100SLOpener : WrathOpener
-    {
-        public override int MinOpenerLevel => 100;
-
-        public override int MaxOpenerLevel => 109;
-
-        public override List<uint> OpenerActions { get; set; } =
-        [
-            ForbiddenMeditation,
-            FormShift,
-            DragonKick,
-            PerfectBalance,
-            TwinSnakes,
-            Demolish,
-            Brotherhood,
-            RiddleOfFire,
-            LeapingOpo,
-            TheForbiddenChakra,
-            RiddleOfWind,
-            RisingPhoenix,
-            DragonKick,
-            WindsReply,
-            FiresReply,
-            LeapingOpo,
-            PerfectBalance,
-            DragonKick,
-            LeapingOpo,
-            DragonKick,
-            ElixirBurst,
-            LeapingOpo
-        ];
-
-        public override List<(int[] Steps, Func<bool> Condition)> SkipSteps { get; set; } =
-        [
-            ([1], () => Chakra >= 5),
-            ([2], () => JustUsed(FormShift, 30f))
-        ];
-
-        internal override UserData ContentCheckConfig => MNK_Balance_Content;
-        public override Preset Preset => Preset.MNK_STUseOpener;
-        public override bool HasCooldowns() =>
-            GetRemainingCharges(PerfectBalance) is 2 &&
-            IsOffCooldown(Brotherhood) &&
-            IsOffCooldown(RiddleOfFire) &&
-            IsOffCooldown(RiddleOfWind) &&
-            NadiFlag is Nadi.None &&
-            OpoOpoStacks is 0 &&
-            RaptorStacks is 0 &&
-            CoeurlStacks is 0;
-    }
 
     internal class MNKLvl90LLOpener : WrathOpener
     {
@@ -605,6 +504,7 @@ internal partial class MNK
             IsOffCooldown(Brotherhood) &&
             IsOffCooldown(RiddleOfFire) &&
             IsOffCooldown(RiddleOfWind) &&
+            (MNK_OpenerCountdown == 1 || CountdownActive) &&
             NadiFlag is Nadi.None &&
             OpoOpoStacks is 0 &&
             RaptorStacks is 0 &&
@@ -657,6 +557,111 @@ internal partial class MNK
             IsOffCooldown(Brotherhood) &&
             IsOffCooldown(RiddleOfFire) &&
             IsOffCooldown(RiddleOfWind) &&
+            (MNK_OpenerCountdown == 1 || CountdownActive) &&
+            NadiFlag is Nadi.None &&
+            OpoOpoStacks is 0 &&
+            RaptorStacks is 0 &&
+            CoeurlStacks is 0;
+    }
+
+    internal class MNKLvl100LLOpener : WrathOpener
+    {
+        public override int MinOpenerLevel => 100;
+
+        public override int MaxOpenerLevel => 109;
+
+        public override List<uint> OpenerActions { get; set; } =
+        [
+            ForbiddenMeditation,
+            FormShift,
+            DragonKick,
+            PerfectBalance,
+            LeapingOpo,
+            DragonKick,
+            Brotherhood,
+            RiddleOfFire,
+            LeapingOpo,
+            TheForbiddenChakra,
+            RiddleOfWind,
+            ElixirBurst,
+            DragonKick,
+            WindsReply,
+            FiresReply,
+            LeapingOpo,
+            PerfectBalance,
+            DragonKick,
+            LeapingOpo,
+            DragonKick,
+            ElixirBurst,
+            LeapingOpo
+        ];
+
+        public override List<(int[] Steps, Func<bool> Condition)> SkipSteps { get; set; } =
+        [
+            ([1], () => Chakra >= 5),
+            ([2], () => JustUsed(FormShift, 30f))
+        ];
+
+        internal override UserData ContentCheckConfig => MNK_Balance_Content;
+        public override Preset Preset => Preset.MNK_STUseOpener;
+        public override bool HasCooldowns() =>
+            GetRemainingCharges(PerfectBalance) is 2 &&
+            IsOffCooldown(Brotherhood) &&
+            IsOffCooldown(RiddleOfFire) &&
+            IsOffCooldown(RiddleOfWind) &&
+            (MNK_OpenerCountdown == 1 || CountdownActive) &&
+            NadiFlag is Nadi.None &&
+            OpoOpoStacks is 0 &&
+            RaptorStacks is 0 &&
+            CoeurlStacks is 0;
+    }
+
+    internal class MNKLvl100SLOpener : WrathOpener
+    {
+        public override int MinOpenerLevel => 100;
+
+        public override int MaxOpenerLevel => 109;
+
+        public override List<uint> OpenerActions { get; set; } =
+        [
+            ForbiddenMeditation,
+            FormShift,
+            DragonKick,
+            PerfectBalance,
+            TwinSnakes,
+            Demolish,
+            Brotherhood,
+            RiddleOfFire,
+            LeapingOpo,
+            TheForbiddenChakra,
+            RiddleOfWind,
+            RisingPhoenix,
+            DragonKick,
+            WindsReply,
+            FiresReply,
+            LeapingOpo,
+            PerfectBalance,
+            DragonKick,
+            LeapingOpo,
+            DragonKick,
+            ElixirBurst,
+            LeapingOpo
+        ];
+
+        public override List<(int[] Steps, Func<bool> Condition)> SkipSteps { get; set; } =
+        [
+            ([1], () => Chakra >= 5),
+            ([2], () => JustUsed(FormShift, 30f))
+        ];
+
+        internal override UserData ContentCheckConfig => MNK_Balance_Content;
+        public override Preset Preset => Preset.MNK_STUseOpener;
+        public override bool HasCooldowns() =>
+            GetRemainingCharges(PerfectBalance) is 2 &&
+            IsOffCooldown(Brotherhood) &&
+            IsOffCooldown(RiddleOfFire) &&
+            IsOffCooldown(RiddleOfWind) &&
+            (MNK_OpenerCountdown == 1 || CountdownActive) &&
             NadiFlag is Nadi.None &&
             OpoOpoStacks is 0 &&
             RaptorStacks is 0 &&

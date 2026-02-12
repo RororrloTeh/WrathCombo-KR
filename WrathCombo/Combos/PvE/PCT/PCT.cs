@@ -39,7 +39,7 @@ internal partial class PCT : Caster
 
             #region OGCD
 
-            if (InCombat())
+            if (InCombat() && HasBattleTarget())
             {
                 // SubtractivePalette
                 if (PaletteReady && CanWeave())
@@ -69,6 +69,17 @@ internal partial class PCT : Caster
                 //LucidDreaming
                 if (Role.CanLucidDream(PCT_ST_AdvancedMode_LucidOption))
                     return Role.LucidDreaming;
+                
+                if (CanWeave() && GroupDamageIncoming() && !JustUsed(Role.Addle, 6))
+                {
+                    if (LevelChecked(TempuraCoat) && IsOffCooldown(TempuraCoat))
+                        return TempuraCoat;
+                    
+                    if (IsInParty() && LevelChecked(TempuraGrassa) &&
+                        NumberOfAlliesInRange(TempuraGrassa) >= GetPartyMembers().Count * .75 &&
+                        HasStatusEffect(Buffs.TempuraCoat))
+                        return TempuraGrassa;
+                }
             }
             #endregion
 
@@ -200,6 +211,8 @@ internal partial class PCT : Caster
             bool cometEnabled = IsEnabled(Preset.PCT_ST_AdvancedMode_CometinBlack);
             bool hammerEnabled = IsEnabled(Preset.PCT_ST_AdvancedMode_HammerStampCombo);
             bool blizzardComboEnabled = IsEnabled(Preset.PCT_ST_AdvancedMode_BlizzardInCyan);
+            int scenicThreshold = PCT_ST_AdvancedMode_ScenicMuse_SubOption == 1 || !InBossEncounter() ? PCT_ST_AdvancedMode_ScenicMuse_Threshold : 0;
+            bool canUseScenic = GetTargetHPPercent() > scenicThreshold;
             #endregion
 
             #region Prepull
@@ -231,14 +244,14 @@ internal partial class PCT : Caster
 
             #region OGCD
             // General Weaves
-            if (InCombat())
+            if (InCombat() && HasBattleTarget())
             {
                 // SubtractivePalette
                 if (paletteEnabled && CanWeave() && PaletteReady)
                     return SubtractivePalette;
 
                 // ScenicMuse
-                if (scenicMuseEnabled && ScenicMuseReady && CanDelayedWeave() &&
+                if (scenicMuseEnabled && ScenicMuseReady && CanDelayedWeave() && canUseScenic &&
                     (!IsMoving() || !PCT_ST_AdvancedMode_ScenicMuse_MovementOption))
                     return OriginalHook(ScenicMuse);
 
@@ -414,7 +427,7 @@ internal partial class PCT : Caster
 
             #region OGCD
             // General Weaves
-            if (InCombat() && CanWeave())
+            if (InCombat() && HasBattleTarget() && CanWeave())
             {
                 // ScenicMuse
                 if (ScenicMuseReady)
@@ -580,6 +593,8 @@ internal partial class PCT : Caster
             bool hammerEnabled = IsEnabled(Preset.PCT_AoE_AdvancedMode_HammerStampCombo);
             bool blizzardComboEnabled = IsEnabled(Preset.PCT_AoE_AdvancedMode_BlizzardInCyan);
             bool holyInWhiteEnabled = IsEnabled(Preset.PCT_AoE_AdvancedMode_HolyinWhite);
+            int scenicThreshold = PCT_AoE_AdvancedMode_ScenicMuse_SubOption == 1 || !InBossEncounter() ? PCT_AoE_AdvancedMode_ScenicMuse_Threshold : 0;
+            bool canUseScenic = GetTargetHPPercent() > scenicThreshold;
             #endregion
 
             #region Prepull
@@ -601,10 +616,10 @@ internal partial class PCT : Caster
 
             #region OGCD
             // General Weaves
-            if (InCombat() && CanWeave())
+            if (InCombat() && HasBattleTarget() && CanWeave())
             {
                 // ScenicMuse
-                if (scenicMuseEnabled && ScenicMuseReady &&
+                if (scenicMuseEnabled && ScenicMuseReady && canUseScenic &&
                     (!IsMoving() || !PCT_AoE_AdvancedMode_ScenicMuse_MovementOption))
                     return OriginalHook(ScenicMuse);
 

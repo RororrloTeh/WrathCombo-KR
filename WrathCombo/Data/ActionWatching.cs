@@ -346,13 +346,20 @@ public static class ActionWatching
 #endif
             }
             SendActionHook!.Original(targetObjectId, actionType, actionId, sequence, a5, a6, a7, a8, a9);
+
+            OverrideTarget = null;
+            AutoRotationController.AutorotHealTarget = null;
+            Service.ActionReplacer.EnableActionReplacingIfRequired();
         }
         catch (Exception ex)
         {
+            Service.ActionReplacer.EnableActionReplacingIfRequired();
             Svc.Log.Error(ex, "SendActionDetour");
             SendActionHook!.Original(targetObjectId, actionType, actionId, sequence, a5, a6, a7, a8, a9);
         }
     }
+
+    public unsafe static bool CanQueueCS(uint actionId) => CanQueueActionDetour(ActionManager.Instance(), 1, actionId);
 
     private static unsafe bool CanQueueActionDetour(ActionManager* actionManager, uint actionType, uint actionID)
     {
@@ -419,15 +426,30 @@ public static class ActionWatching
     {
         try
         {
-
             if (actionType is ActionType.Action)
             {
+                if (mode == ActionManager.UseActionMode.Queue) // This is so we can remove queue suppression
+                    Service.ActionReplacer.DisableActionReplacingIfRequired(); // It gets re-enabled at the end of sending. 
+
                 var original = actionId; //Save the original action, do not modify
                 var originalTargetId = targetId; //Save the original target, do not modify
+                var changedTargetId = targetId; //This will get modified and used elsewhere
 
                 var modifiedAction = Service.ActionReplacer.LastActionInvokeFor.ContainsKey(actionId) ? Service.ActionReplacer.LastActionInvokeFor[actionId] : actionId;
-                var changed = CheckForChangedTarget(original, ref targetId,
+                var changed = CheckForChangedTarget(original, ref changedTargetId,
                     out var replacedWith); //Passes the original action to the retargeting framework, outputs a targetId and a replaced action
+
+                // If retargeting kicks in, update target ID
+                if (changed)
+                    targetId = changedTargetId;
+
+                // Clear any dodgy leftover targets
+                if (!Svc.Objects.Any(x => x.GameObjectId == actionManager->QueuedTargetId.Id))
+                    actionManager->QueuedTargetId = 0;
+
+                // However, if we have a queued target ID assume that's what we want and not whatever current retargeting is. TODO: Setting?
+                if (actionManager->QueuedTargetId.Id != 0)
+                    targetId = actionManager->QueuedTargetId.Id;
 
                 var areaTargeted = ActionSheet[replacedWith].TargetArea;
                 var targetObject = targetId.GetObject();
@@ -441,6 +463,7 @@ public static class ActionWatching
                 if ((changed && areaTargeted) || AutoRotationController.WouldLikeToGroundTarget)
                 {
                     var location = Player.Position;
+                    replacedWith = Service.ActionReplacer.LastActionInvokeFor.TryGetValue(actionId, out var replacedGT) ? replacedGT : replacedWith;
 
                     if (IsOverGround(targetObject) &&
                         Vector3.Distance(Player.Position, targetObject.Position) <= replacedWith.ActionRange()) // not GetTargetDistance or something, as hitboxes should not count here
@@ -455,31 +478,31 @@ public static class ActionWatching
                         (actionType, replacedWith, location: &location);
                 }
 
-                //Important to pass actionId here and not replaced.
-                var hookResult = changed ? UseActionHook.Original(actionManager, actionType, actionId, targetId, extraParam, mode, comboRouteId, outOptAreaTargeted) :
-                    UseActionHook.Original(actionManager, actionType, actionId, originalTargetId, extraParam, mode, comboRouteId, outOptAreaTargeted);
+                if (Service.Configuration.OverwriteQueue && actionManager->QueuedActionId != 0 && CanQueueCS(replacedWith))
+                    actionManager->QueuedActionId = replacedWith;
+
+                // Determine if the action will queue according to user settings
+                bool willQueue = CanQueueCS(replacedWith) && RemainingGCD > 0;
+
+                // If the action is going to queue, and we've retargeted, update the queued target to match the retargeted target at time of queue
+                if (willQueue && changed)
+                {
+                    Svc.Log.Verbose($"[QueuedTargetUpdate] Updating queued target ID to {Svc.Objects.SearchById(changedTargetId)?.Name}");
+
+                    // Only sets the queued target once if overwrite is not enabled, otherwise will update each button press
+                    if (actionManager->QueuedTargetId.Id == 0 || Service.Configuration.OverwriteQueue)
+                    actionManager->QueuedTargetId = changedTargetId;
+                }
+
+                Svc.Log.Verbose($"[QueuedTargetUpdate] A:{actionManager->QueuedActionId.ActionName()} Q:{Svc.Objects.SearchById(actionManager->QueuedTargetId)?.Name} T:{Svc.Objects.SearchById(targetId)?.Name} M:{mode} W:{willQueue}");
+
+                var hookResult = changed ? UseActionHook.Original(actionManager, actionType, replacedWith, targetId, extraParam, mode, comboRouteId, outOptAreaTargeted) :
+                    UseActionHook.Original(actionManager, actionType, replacedWith, originalTargetId, extraParam, mode, comboRouteId, outOptAreaTargeted);
 
                 // Fallback if the Retargeted ground action couldn't be placed smartly
                 if (changed && areaTargeted)
                     ActionManager.Instance()->AreaTargetingExecuteAtObject =
                         targetId;
-
-                // This really only works if no other plugin is forcing these values to be any different than vanilla for whatever reason
-                // Hookresult should only return true when an action is actually used, or when it gets queued
-                // So part 2 just makes sure it's returning true only when it's not being queued
-                var success = hookResult && !(mode == ActionManager.UseActionMode.None && actionManager->QueuedActionId > 0);
-
-                //if (success)
-                //{
-                //    if (NIN.MudraSigns.Contains(modifiedAction))
-                //    {
-                //        Svc.Log.Debug($"Mudra used: {modifiedAction.ActionName()}");
-                //        NIN.InMudra = true;
-                //    }
-                //    var castTime = ActionManager.GetAdjustedCastTime(actionType, modifiedAction);
-                //    LastAction = modifiedAction;
-                //    TimeLastActionUsed = DateTime.Now;
-                //}
 
                 return hookResult;
             }

@@ -240,6 +240,9 @@ internal partial class SMN : Caster
                 if (ActionReady(LuxSolaris) &&
                    (PlayerHealthPercentageHp() < 100 || (GetStatusEffectRemainingTime(Buffs.RefulgentLux) is < 3 and > 0)))
                     return OriginalHook(LuxSolaris);
+                
+                if (Role.CanAddle() && GroupDamageIncoming())
+                    return Role.Addle;
 
                 // Self Shield Overcap
                 if (!HasStatusEffect(Buffs.SearingLight) && !HasStatusEffect(Buffs.TitansFavor) &&
@@ -701,8 +704,8 @@ internal partial class SMN : Caster
             foreach (var prio in SMN_ST_Egi_Priority.OrderBy(x => x))
             {
                 var index = SMN_ST_Egi_Priority.IndexOf(prio);
-                var config = GetMatchingConfigST(index, OptionalTarget,
-                    out var spell, out var enabled);
+                var config = GetMatchingConfigST(index, out var spell,
+                    out var enabled);
 
                 if (!enabled) continue;
 
@@ -908,8 +911,8 @@ internal partial class SMN : Caster
             foreach (var prio in SMN_AoE_Egi_Priority.OrderBy(x => x))
             {
                 var index = SMN_AoE_Egi_Priority.IndexOf(prio);
-                var config = GetMatchingConfigAoE(index, OptionalTarget,
-                    out var spell, out var enabled);
+                var config = GetMatchingConfigAoE(index, out var spell,
+                    out var enabled);
 
                 if (!enabled) continue;
 

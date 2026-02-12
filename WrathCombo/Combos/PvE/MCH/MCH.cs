@@ -1,4 +1,3 @@
-using Dalamud.Game.ClientState.Statuses;
 using System;
 using WrathCombo.CustomComboNS;
 using static WrathCombo.Combos.PvE.MCH.Config;
@@ -42,6 +41,10 @@ internal partial class MCH : PhysicalRanged
                     !HasStatusEffect(Buffs.Wildfire))
                     return Wildfire;
 
+                // Hypercharge
+                if (CanHypercharge())
+                    return Hypercharge;
+
                 // Gauss Round and Ricochet during HC
                 if (JustUsed(OriginalHook(Heatblast), 1f) && !HasWeaved())
                 {
@@ -55,10 +58,10 @@ internal partial class MCH : PhysicalRanged
                 if (!IsOverheated)
                 {
                     // BarrelStabilizer
-                    if (TargetIsBoss() &&
+                    if (ActionReady(BarrelStabilizer) &&
+                        TargetIsBoss() &&
                         DrillCD && AirAnchorCD && ChainSawCD &&
-                        GetCooldownRemainingTime(Wildfire) <= GCD &&
-                        ActionReady(BarrelStabilizer) &&
+                        GetCooldownRemainingTime(Wildfire) <= 20 &&
                         !HasStatusEffect(Buffs.FullMetalMachinist))
                         return BarrelStabilizer;
 
@@ -69,10 +72,6 @@ internal partial class MCH : PhysicalRanged
                     // Reassemble
                     if (CanReassemble())
                         return Reassemble;
-
-                    // Hypercharge
-                    if (CanHypercharge())
-                        return Hypercharge;
 
                     // Gauss Round and Ricochet outside HC
                     if (JustUsed(OriginalHook(AirAnchor), 2f) ||
@@ -87,6 +86,12 @@ internal partial class MCH : PhysicalRanged
                             return OriginalHook(Ricochet);
                     }
 
+                    if (ActionReady(Dismantle) &&
+                        !HasStatusEffect(Debuffs.Dismantled, CurrentTarget, true) &&
+                        CanApplyStatus(CurrentTarget, Debuffs.Dismantled) &&
+                        GroupDamageIncoming())
+                        return Dismantle;
+
                     // Healing
                     if (Role.CanSecondWind(40))
                         return Role.SecondWind;
@@ -98,11 +103,7 @@ internal partial class MCH : PhysicalRanged
             }
 
             // Full Metal Field
-            if (HasStatusEffect(Buffs.FullMetalMachinist, out IStatus? fullMetal) &&
-                !IsOverheated &&
-                (ActionReady(Wildfire) ||
-                 GetCooldownRemainingTime(Wildfire) > 90 ||
-                 fullMetal.RemainingTime <= 6))
+            if (CanUseFullMetalField)
                 return FullMetalField;
 
             //Tools
@@ -174,7 +175,8 @@ internal partial class MCH : PhysicalRanged
                         !HasStatusEffect(Buffs.FullMetalMachinist))
                         return BarrelStabilizer;
 
-                    if (Battery is 100)
+                    if (ActionReady(RookAutoturret) &&
+                        Battery is 100)
                         return OriginalHook(RookAutoturret);
 
                     if (ActionReady(Reassemble) && !HasStatusEffect(Buffs.Wildfire) &&
@@ -241,8 +243,8 @@ internal partial class MCH : PhysicalRanged
 
             if (ActionReady(BlazingShot) && IsOverheated)
                 return HasBattleTarget() &&
-                       (!LevelChecked(CheckMate) ||
-                        LevelChecked(CheckMate) &&
+                       (!LevelChecked(CheckMate) && LevelChecked(AutoCrossbow) ||
+                        LevelChecked(CheckMate) && LevelChecked(BlazingShot) &&
                         NumberOfEnemiesInRange(AutoCrossbow, CurrentTarget) >= 5)
                     ? AutoCrossbow
                     : BlazingShot;
@@ -300,6 +302,12 @@ internal partial class MCH : PhysicalRanged
                     !HasStatusEffect(Buffs.Wildfire))
                     return Wildfire;
 
+                // Hypercharge
+                if (IsEnabled(Preset.MCH_ST_Adv_Hypercharge) &&
+                    GetTargetHPPercent() > HPThresholdHypercharge &&
+                    CanHypercharge())
+                    return Hypercharge;
+
                 // Gauss Round and Ricochet during HC
                 if (IsEnabled(Preset.MCH_ST_Adv_GaussRicochet) &&
                     JustUsed(OriginalHook(Heatblast), 1f) && !HasWeaved())
@@ -324,21 +332,18 @@ internal partial class MCH : PhysicalRanged
 
                     // BarrelStabilizer
                     if (IsEnabled(Preset.MCH_ST_Adv_Stabilizer) &&
-                        (MCH_ST_BarrelStabilizerBossOption == 0 && GetTargetHPPercent() > HPThresholdBarrelStabilizer || TargetIsBoss()) &&
-                        DrillCD && AirAnchorCD && ChainSawCD && GetCooldownRemainingTime(Wildfire) <= GCD &&
-                        ActionReady(BarrelStabilizer) && !HasStatusEffect(Buffs.FullMetalMachinist))
+                        ActionReady(BarrelStabilizer) &&
+                        (MCH_ST_BarrelStabilizerBossOption == 0 && GetTargetHPPercent() > HPThresholdBarrelStabilizer ||
+                         TargetIsBoss()) &&
+                        DrillCD && AirAnchorCD && ChainSawCD &&
+                        GetCooldownRemainingTime(Wildfire) <= 20 &&
+                        !HasStatusEffect(Buffs.FullMetalMachinist))
                         return BarrelStabilizer;
 
                     // Queen
                     if (IsEnabled(Preset.MCH_ST_Adv_TurretQueen) &&
                         CanQueen())
                         return OriginalHook(RookAutoturret);
-
-                    // Hypercharge
-                    if (IsEnabled(Preset.MCH_ST_Adv_Hypercharge) &&
-                        GetTargetHPPercent() > HPThresholdHypercharge &&
-                        CanHypercharge())
-                        return Hypercharge;
 
                     // Gauss Round and Ricochet outside HC
                     if (IsEnabled(Preset.MCH_ST_Adv_GaussRicochet) &&
@@ -382,11 +387,7 @@ internal partial class MCH : PhysicalRanged
 
             // Full Metal Field
             if (IsEnabled(Preset.MCH_ST_Adv_Stabilizer_FullMetalField) &&
-                HasStatusEffect(Buffs.FullMetalMachinist, out IStatus? fullMetal) &&
-                !IsOverheated &&
-                (ActionReady(Wildfire) ||
-                 GetCooldownRemainingTime(Wildfire) > 90 ||
-                 fullMetal.RemainingTime <= 6))
+                CanUseFullMetalField)
                 return FullMetalField;
 
             //Tools
@@ -549,8 +550,8 @@ internal partial class MCH : PhysicalRanged
 
             if (ActionReady(BlazingShot) && IsOverheated)
                 return HasBattleTarget() &&
-                       (!LevelChecked(CheckMate) ||
-                        LevelChecked(CheckMate) &&
+                       (!LevelChecked(CheckMate) && LevelChecked(AutoCrossbow) ||
+                        LevelChecked(CheckMate) && LevelChecked(BlazingShot) &&
                         NumberOfEnemiesInRange(AutoCrossbow, CurrentTarget) >= 5 ||
                         IsNotEnabled(Preset.MCH_AoE_Adv_GaussRicochet))
                     ? AutoCrossbow

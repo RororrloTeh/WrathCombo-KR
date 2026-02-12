@@ -38,6 +38,9 @@ internal partial class VPR
                         if ((HasStatusEffect(Buffs.FlanksbaneVenom) || HasStatusEffect(Buffs.HindsbaneVenom)) &&
                             LevelChecked(HindstingStrike))
                             return useTrueNorth &&
+                                   (VPR_ST_TrueNorthDynamicHoldCharge &&
+                                    GetRemainingCharges(Role.TrueNorth) is 2 ||
+                                    !VPR_ST_TrueNorthDynamicHoldCharge) &&
                                    GetRemainingCharges(Role.TrueNorth) > TnCharges &&
                                    Role.CanTrueNorth() &&
                                    (!OnTargetsRear() && HasStatusEffect(Buffs.HindsbaneVenom) ||
@@ -48,6 +51,9 @@ internal partial class VPR
                         if ((HasStatusEffect(Buffs.FlankstungVenom) || HasStatusEffect(Buffs.HindstungVenom)) &&
                             LevelChecked(FlanksbaneFang))
                             return useTrueNorth &&
+                                   (VPR_ST_TrueNorthDynamicHoldCharge &&
+                                    GetRemainingCharges(Role.TrueNorth) is 2 ||
+                                    !VPR_ST_TrueNorthDynamicHoldCharge) &&
                                    GetRemainingCharges(Role.TrueNorth) > TnCharges &&
                                    Role.CanTrueNorth() &&
                                    (!OnTargetsRear() && HasStatusEffect(Buffs.HindstungVenom) ||
@@ -160,6 +166,14 @@ internal partial class VPR
         !HasStatusEffect(Buffs.PoisedForTwinblood) &&
         !HasStatusEffect(Buffs.PoisedForTwinfang);
 
+    private static bool HasBothBuffs =>
+        HasStatusEffect(Buffs.Swiftscaled) &&
+        HasStatusEffect(Buffs.HuntersInstinct);
+
+    private static int HPThresholdSerpentsIre =>
+        VPR_ST_SerpentsIreBossOption == 1 ||
+        !InBossEncounter() ? VPR_ST_SerpentsIreHPOption : 0;
+
     #endregion
 
     #region Reawaken
@@ -167,31 +181,30 @@ internal partial class VPR
     private static bool CanReawaken(bool isAoE = false)
     {
         int hpThresholdUsageST = IsNotEnabled(Preset.VPR_ST_SimpleMode) ? ComputeHpThresholdReawaken() : 0;
-        int hpThresholdDontSaveST = IsNotEnabled(Preset.VPR_ST_SimpleMode) ? VPR_ST_ReAwaken_Threshold : 5;
-        int hpThresholdUsageAoE = IsNotEnabled(Preset.VPR_AoE_SimpleMode) ? VPR_AoE_Reawaken_Usage : 40;
+        int hpThresholdDontSaveST = IsNotEnabled(Preset.VPR_ST_SimpleMode) ? VPR_ST_ReAwakenAlwaysUse : 5;
+        int hpThresholdUsageAoE = IsNotEnabled(Preset.VPR_AoE_SimpleMode) ? VPR_AoE_ReawakenHPThreshold : 40;
 
         switch (isAoE)
         {
             case false:
             {
-                if (ActionReady(Reawaken) && !HasStatusEffect(Buffs.Reawakened) && InActionRange(Reawaken) &&
-                    NoSTComboWeaves && HasBattleTarget() &&
+                if (ActionReady(Reawaken) && !HasStatusEffect(Buffs.Reawakened) &&
+                    InActionRange(Reawaken) && NoSTComboWeaves && HasBattleTarget() &&
                     !IsEmpowermentExpiring(6) && !IsComboExpiring(6) &&
                     GetTargetHPPercent() > hpThresholdUsageST)
                 {
                     //Use whenever
-                    if (SerpentOffering >= 50 && TargetIsBoss() &&
+                    if (TargetIsBoss() &&
                         GetTargetHPPercent() < hpThresholdDontSaveST)
                         return true;
 
                     //2min burst
-                    if (!JustUsed(SerpentsIre, 2.2f) && HasStatusEffect(Buffs.ReadyToReawaken) ||
-                        WasLastWeaponskill(Ouroboros) && SerpentOffering >= 50 && IreCD >= 50)
+                    if (!JustUsed(SerpentsIre, GCD) && HasStatusEffect(Buffs.ReadyToReawaken) ||
+                        JustUsed(Ouroboros, GCD) && IreCD >= 90)
                         return true;
 
                     //1min
-                    if (SerpentOffering is >= 50 and <= 80 &&
-                        IreCD is >= 50 and <= 62)
+                    if (IreCD is >= 50 and <= 62)
                         return true;
 
                     //overcap protection
@@ -199,12 +212,11 @@ internal partial class VPR
                         return true;
 
                     //non-boss encounters
-                    if (!InBossEncounter() && SerpentOffering >= 50)
+                    if (!InBossEncounter())
                         return true;
 
                     //Lower lvl
-                    if (SerpentOffering >= 50 &&
-                        WasLastWeaponskill(FourthGeneration) && !LevelChecked(Ouroboros))
+                    if (!LevelChecked(Ouroboros) && JustUsed(FourthGeneration))
                         return true;
                 }
                 break;
@@ -224,7 +236,8 @@ internal partial class VPR
     {
         #region Pre Ouroboros
 
-        if (!TraitLevelChecked(Traits.EnhancedSerpentsLineage))
+        if (!TraitLevelChecked(Traits.EnhancedSerpentsLineage) &&
+            NoSTComboWeaves && NoAoEComboWeaves)
         {
             return AnguineTribute switch
             {
@@ -240,7 +253,8 @@ internal partial class VPR
 
         #region With Ouroboros
 
-        if (TraitLevelChecked(Traits.EnhancedSerpentsLineage))
+        if (TraitLevelChecked(Traits.EnhancedSerpentsLineage) &&
+            NoSTComboWeaves && NoAoEComboWeaves)
         {
             return AnguineTribute switch
             {
@@ -308,38 +322,39 @@ internal partial class VPR
 
     #endregion
 
-    #region Vicewinder & Uncoied Fury Combo
+    #region Vicewinder & Uncoiled Fury Combo
 
     private static bool CanUseVicewinder =>
         ActionReady(Vicewinder) && InActionRange(Vicewinder) && InCombat() &&
         !IsComboExpiring(4) && !IsVenomExpiring(4) && !IsHoningExpiring(4) &&
-        !VicewinderReady && !HuntersCoilReady && !SwiftskinsCoilReady &&
+        !UsedVicewinder && !UsedHuntersCoil && !UsedSwiftskinsCoil && !JustUsed(Vicewinder) &&
         (IreCD >= GCD * 3 && InBossEncounter() || !InBossEncounter() || !LevelChecked(SerpentsIre));
 
     private static bool CanUseUncoiledFury(bool isAoE = false)
     {
-        int ufHoldChargesST = IsNotEnabled(Preset.VPR_ST_SimpleMode) ? VPR_ST_UncoiledFury_HoldCharges : 1;
-        int ufHPThresholdST = IsNotEnabled(Preset.VPR_ST_SimpleMode) ? VPR_ST_UncoiledFury_Threshold : 1;
-        int ufHoldChargesAoE = IsNotEnabled(Preset.VPR_AoE_SimpleMode) ? VPR_AoE_UncoiledFury_HoldCharges : 1;
-        int ufHPThresholdAoE = IsNotEnabled(Preset.VPR_AoE_SimpleMode) ? VPR_AoE_UncoiledFury_Threshold : 1;
-
+        int ufHoldChargesST = IsNotEnabled(Preset.VPR_ST_SimpleMode) ? VPR_ST_UncoiledFuryHoldCharges : 1;
+        int ufHPThresholdST = IsNotEnabled(Preset.VPR_ST_SimpleMode) ? VPR_ST_UncoiledFuryAlwaysUse : 1;
+        int ufHoldChargesAoE = IsNotEnabled(Preset.VPR_AoE_SimpleMode) ? VPR_AoE_UncoiledFuryHoldCharges : 1;
+        int ufHPThresholdAoE = IsNotEnabled(Preset.VPR_AoE_SimpleMode) ? VPR_AoE_UncoiledFuryAlwaysUse : 1;
 
         switch (isAoE)
         {
-            case false when !IsComboExpiring(2) && !IsVenomExpiring(2) && !IsHoningExpiring(2) &&
-                            ActionReady(UncoiledFury) && HasStatusEffect(Buffs.Swiftscaled) && HasStatusEffect(Buffs.HuntersInstinct) &&
-                            (RattlingCoilStacks > ufHoldChargesST || GetTargetHPPercent() < ufHPThresholdST && HasRattlingCoilStacks) &&
-                            !VicewinderReady && !HuntersCoilReady && !SwiftskinsCoilReady && NoSTComboWeaves &&
-                            !HasStatusEffect(Buffs.Reawakened) && !HasStatusEffect(Buffs.ReadyToReawaken) &&
-                            !WasLastWeaponskill(Ouroboros) && !IsEmpowermentExpiring(3):
+            //ST Range uptime    
+            case false when ActionReady(UncoiledFury) && HasRattlingCoilStacks && !InMeleeRange() && HasBattleTarget():
 
-            case true when ActionReady(UncoiledFury) &&
-                           (RattlingCoilStacks > ufHoldChargesAoE ||
-                            GetTargetHPPercent() < ufHPThresholdAoE && HasRattlingCoilStacks) &&
-                           HasStatusEffect(Buffs.Swiftscaled) && HasStatusEffect(Buffs.HuntersInstinct) &&
-                           !VicepitReady && !HuntersDenReady && !SwiftskinsDenReady &&
-                           !HasStatusEffect(Buffs.Reawakened) && NoAoEComboWeaves &&
-                           !WasLastWeaponskill(JaggedMaw) && !WasLastWeaponskill(BloodiedMaw) && !WasLastAbility(SerpentsIre):
+            //ST normal rotation
+            case false when ActionReady(UncoiledFury) && InActionRange(UncoiledFury) &&
+                            HasBothBuffs && !UsedVicewinder && !UsedHuntersCoil && !UsedSwiftskinsCoil && NoSTComboWeaves &&
+                            !HasStatusEffect(Buffs.Reawakened) && !HasStatusEffect(Buffs.ReadyToReawaken) && !JustUsed(Ouroboros) &&
+                            !IsComboExpiring(2) && !IsVenomExpiring(2) && !IsHoningExpiring(2) && !IsEmpowermentExpiring(3) &&
+                            (RattlingCoilStacks > ufHoldChargesST || GetTargetHPPercent() < ufHPThresholdST && HasRattlingCoilStacks):
+
+            //AoE rotation 
+            case true when ActionReady(UncoiledFury) && InActionRange(UncoiledFury) &&
+                           HasBothBuffs && !UsedVicepit && !UsedHuntersDen && !UsedSwiftskinsDen && NoAoEComboWeaves &&
+                           !HasStatusEffect(Buffs.Reawakened) && !HasStatusEffect(Buffs.ReadyToReawaken) && !JustUsed(Ouroboros) &&
+                           !JustUsed(JaggedMaw, GCD) && !JustUsed(BloodiedMaw, GCD) && !JustUsed(SerpentsIre, GCD) &&
+                           (RattlingCoilStacks > ufHoldChargesAoE || GetTargetHPPercent() < ufHPThresholdAoE && HasRattlingCoilStacks):
                 return true;
 
             default:
@@ -349,29 +364,27 @@ internal partial class VPR
 
     private static bool CanVicewinderCombo(ref uint actionId)
     {
-        if ((VicewinderReady || SwiftskinsCoilReady || HuntersCoilReady) &&
+        if ((UsedVicewinder || UsedSwiftskinsCoil || UsedHuntersCoil) &&
             LevelChecked(Vicewinder) && InActionRange(Vicewinder) &&
             !HasStatusEffect(Buffs.Reawakened))
         {
-            // Swiftskin's Coil
-            if (VicewinderReady &&
-                (!OnTargetsFlank() ||
-                 !TargetNeedsPositionals() ||
-                 !HasStatusEffect(Buffs.Swiftscaled) ||
-                 IsEmpowermentExpiring(6)) ||
-                HuntersCoilReady)
+            // Swiftskin's Coil (Rear)
+            if (UsedVicewinder &&
+                (!HasStatusEffect(Buffs.Swiftscaled) ||
+                 HasBothBuffs && (!OnTargetsFlank() || !TargetNeedsPositionals()) ||
+                 VPR_VicewinderBuffPrio && GetStatusEffectRemainingTime(Buffs.Swiftscaled) < GCD * 6) ||
+                UsedHuntersCoil)
             {
                 actionId = SwiftskinsCoil;
                 return true;
             }
 
-            // Hunter's Coil
-            if (VicewinderReady &&
-                (!OnTargetsRear() ||
-                 !TargetNeedsPositionals() ||
-                 !HasStatusEffect(Buffs.HuntersInstinct) ||
-                 IsEmpowermentExpiring(6)) ||
-                SwiftskinsCoilReady)
+            // Hunter's Coil (Flank)
+            if (UsedVicewinder &&
+                (!HasStatusEffect(Buffs.HuntersInstinct) ||
+                 HasBothBuffs && (!OnTargetsRear() || !TargetNeedsPositionals()) ||
+                 VPR_VicewinderBuffPrio && GetStatusEffectRemainingTime(Buffs.HuntersInstinct) < GCD * 6) ||
+                UsedSwiftskinsCoil)
             {
                 actionId = HuntersCoil;
                 return true;
@@ -428,8 +441,8 @@ internal partial class VPR
             UncoiledFury, //24
             UncoiledTwinfang, //25
             UncoiledTwinblood, //26
-            HindstingStrike,
-            DeathRattle,
+            HindstingStrike, //27
+            DeathRattle, //28
             Vicewinder,
             UncoiledFury, //30
             UncoiledTwinfang, //31
@@ -447,14 +460,16 @@ internal partial class VPR
             ([33], SwiftskinsCoil, OnTargetsRear),
             ([34], TwinbloodBite, () => HasStatusEffect(Buffs.SwiftskinsVenom)),
             ([35], TwinfangBite, () => HasStatusEffect(Buffs.HuntersVenom)),
-            ([36], HuntersCoil, () => SwiftskinsCoilReady),
+            ([36], HuntersCoil, () => UsedSwiftskinsCoil),
             ([37], TwinfangBite, () => HasStatusEffect(Buffs.HuntersVenom)),
             ([38], TwinbloodBite, () => HasStatusEffect(Buffs.SwiftskinsVenom))
         ];
 
         public override List<(int[] Steps, Func<bool> Condition)> SkipSteps { get; set; } =
         [
-            ([21, 22, 23, 24, 25, 26, 30, 31, 32], () => VPR_Opener_ExcludeUF)
+            ([21, 22, 23, 24, 25, 26, 30, 31, 32], () => VPR_Opener_ExcludeUF || !HasCharges(RattlingCoil)),
+            ([27], () => ComboAction is not SwiftskinsSting),
+            ([28], () => !DeathRattleWeave && !JustUsed(HindstingStrike))
         ];
 
         internal override UserData ContentCheckConfig => VPR_Balance_Content;
@@ -479,17 +494,17 @@ internal partial class VPR
 
     private static DreadCombo DreadCombo => Gauge.DreadCombo;
 
-    private static bool VicewinderReady => DreadCombo is DreadCombo.Dreadwinder;
+    private static bool UsedVicewinder => DreadCombo is DreadCombo.Dreadwinder;
 
-    private static bool HuntersCoilReady => DreadCombo is DreadCombo.HuntersCoil;
+    private static bool UsedHuntersCoil => DreadCombo is DreadCombo.HuntersCoil;
 
-    private static bool SwiftskinsCoilReady => DreadCombo is DreadCombo.SwiftskinsCoil;
+    private static bool UsedSwiftskinsCoil => DreadCombo is DreadCombo.SwiftskinsCoil;
 
-    private static bool VicepitReady => DreadCombo is DreadCombo.PitOfDread;
+    private static bool UsedVicepit => DreadCombo is DreadCombo.PitOfDread;
 
-    private static bool SwiftskinsDenReady => DreadCombo is DreadCombo.SwiftskinsDen;
+    private static bool UsedSwiftskinsDen => DreadCombo is DreadCombo.SwiftskinsDen;
 
-    private static bool HuntersDenReady => DreadCombo is DreadCombo.HuntersDen;
+    private static bool UsedHuntersDen => DreadCombo is DreadCombo.HuntersDen;
 
     private static SerpentCombo SerpentCombo => Gauge.SerpentCombo;
 

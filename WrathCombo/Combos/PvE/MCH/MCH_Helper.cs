@@ -17,22 +17,24 @@ internal partial class MCH
         switch (onAoE)
         {
             case false when
-                (Heat >= 50 || HasStatusEffect(Buffs.Hypercharged)) &&
-                !IsComboExpiring(6) && ActionReady(Hypercharge) &&
-                !JustUsed(BarrelStabilizer) &&
+                (ActionReady(Hypercharge) || HasStatusEffect(Buffs.Hypercharged)) &&
+                !IsComboExpiring(6) && !IsOverheated &&
+                LevelChecked(Heatblast) &&
                 DrillCD && AirAnchorCD && ChainSawCD &&
                 !HasStatusEffect(Buffs.ExcavatorReady) &&
+                !HasStatusEffect(Buffs.FullMetalMachinist) &&
                 (ActionReady(Wildfire) ||
+                 JustUsed(FullMetalField, GCD / 2) ||
                  MCH_ST_WildfireBossOption == 1 && !TargetIsBoss() ||
                  GetCooldownRemainingTime(Wildfire) > GCD * 15 ||
                  Heat is 100 && GetCooldownRemainingTime(Wildfire) > 10 ||
                  !LevelChecked(Wildfire)):
 
             case true when
-                (Heat >= 50 || HasStatusEffect(Buffs.Hypercharged)) && LevelChecked(Hypercharge) &&
+                (ActionReady(Hypercharge) || HasStatusEffect(Buffs.Hypercharged)) &&
                 LevelChecked(AutoCrossbow) &&
                 (LevelChecked(BioBlaster) && GetCooldownRemainingTime(BioBlaster) > 10 ||
-                 !LevelChecked(BioBlaster)) &&
+                 !LevelChecked(BioBlaster) || IsNotEnabled(Preset.MCH_AoE_Adv_Tools)) &&
                 (LevelChecked(Flamethrower) && GetCooldownRemainingTime(Flamethrower) > 10 ||
                  !LevelChecked(Flamethrower) || IsNotEnabled(Preset.MCH_AoE_Adv_FlameThrower)):
                 return true;
@@ -49,7 +51,8 @@ internal partial class MCH
     {
         if (!HasStatusEffect(Buffs.Wildfire) &&
             ActionReady(RookAutoturret) &&
-            !RobotActive && Battery >= 50)
+            !RobotActive &&
+            GetTargetHPPercent() > HPThresholdQueen)
         {
             if (LevelChecked(Wildfire))
             {
@@ -84,6 +87,22 @@ internal partial class MCH
 
     #endregion
 
+    #region Misc
+
+    private static bool CanUseFullMetalField =>
+        HasStatusEffect(Buffs.FullMetalMachinist) &&
+        !IsOverheated &&
+        (ActionReady(Wildfire) ||
+         GetCooldownRemainingTime(Wildfire) > 90 ||
+         GetCooldownRemainingTime(Wildfire) <= GCD ||
+         GetStatusEffectRemainingTime(Buffs.FullMetalMachinist) <= 6);
+
+    private static int HPThresholdQueen =>
+        MCH_ST_QueenBossOption == 1 ||
+        !InBossEncounter() ? MCH_ST_QueenHPOption : 0;
+
+    #endregion
+
     #region Reassembled
 
     private static int ReadyTools()
@@ -110,7 +129,8 @@ internal partial class MCH
     {
         uint remainingCharges = GetRemainingCharges(Reassemble);
 
-        if (HasStatusEffect(Buffs.Reassembled) || !HasBattleTarget() || !InActionRange(Drill))
+        if (HasStatusEffect(Buffs.Reassembled) || !HasBattleTarget() ||
+            !InActionRange(Drill) || JustUsed(Reassemble))
             return false;
 
         if (remainingCharges == 0)

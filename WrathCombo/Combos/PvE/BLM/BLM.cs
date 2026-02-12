@@ -24,7 +24,7 @@ internal partial class BLM : Caster
                     return Amplifier;
 
                 if (ActionReady(LeyLines) && !HasStatusEffect(Buffs.LeyLines) &&
-                    GetRemainingCharges(LeyLines) > 1 &&
+                    GetRemainingCharges(LeyLines) > 1 && !JustUsed(LeyLines) &&
                     !IsMoving() && TimeStoodStill > TimeSpan.FromSeconds(2.5f))
                     return LeyLines;
 
@@ -41,7 +41,7 @@ internal partial class BLM : Caster
                     if (ActionReady(Triplecast) && IsOnCooldown(Role.Swiftcast) &&
                         !HasStatusEffect(Role.Buffs.Swiftcast) && !HasStatusEffect(Buffs.Triplecast) &&
                         InActionRange(Fire) && HasBattleTarget() && !HasStatusEffect(Buffs.LeyLines) &&
-                        JustUsed(Despair) && !ActionReady(Manafont))
+                        JustUsed(Despair) && !ActionReady(Manafont) && !JustUsed(Triplecast))
                         return Triplecast;
 
                     if (ActionReady(Transpose) &&
@@ -65,6 +65,9 @@ internal partial class BLM : Caster
                 if (ActionReady(Manaward) &&
                     PlayerHealthPercentageHp() < 40 && GroupDamageIncoming())
                     return Manaward;
+
+                if (Role.CanAddle() && GroupDamageIncoming())
+                    return Role.Addle;
             }
 
             if (IsMoving() && !LevelChecked(Triplecast) &&
@@ -91,7 +94,8 @@ internal partial class BLM : Caster
                 if (ActionReady(Triplecast) &&
                     !HasStatusEffect(Buffs.Triplecast) &&
                     !HasStatusEffect(Role.Buffs.Swiftcast) &&
-                    !HasStatusEffect(Buffs.LeyLines))
+                    !HasStatusEffect(Buffs.LeyLines) &&
+                    !JustUsed(Triplecast))
                     return Triplecast;
 
                 if (LevelChecked(Paradox) &&
@@ -139,6 +143,10 @@ internal partial class BLM : Caster
                     (LevelChecked(Despair) && MP.Cur - MP.FireI >= 800 ||
                      !LevelChecked(Despair)))
                     return FireSpam;
+
+                if (ActionReady(Flare) &&
+                    !LevelChecked(Fire4) && MP.Cur <= 800)
+                    return Flare;
 
                 if (ActionReady(Despair))
                     return Despair;
@@ -204,8 +212,11 @@ internal partial class BLM : Caster
 
             if (CanWeave())
             {
-                if (IsMoving() && InCombat() && InActionRange(Fire2) && HasBattleTarget() &&
-                    ActionReady(Triplecast) && !HasStatusEffect(Buffs.Triplecast))
+                if (IsMoving() && InCombat() &&
+                    InActionRange(Fire2) && HasBattleTarget() &&
+                    ActionReady(Triplecast) &&
+                    !HasStatusEffect(Buffs.Triplecast) &&
+                    !JustUsed(Triplecast))
                     return Triplecast;
 
                 if (ActionReady(Manafont) &&
@@ -221,7 +232,7 @@ internal partial class BLM : Caster
 
                 if (ActionReady(LeyLines) && !HasStatusEffect(Buffs.LeyLines) &&
                     !IsMoving() && TimeStoodStill > TimeSpan.FromSeconds(BLM_AoE_LeyLinesTimeStill) &&
-                    GetTargetHPPercent() > 40)
+                    GetTargetHPPercent() > 40 && !JustUsed(LeyLines))
                     return LeyLines;
             }
 
@@ -249,7 +260,8 @@ internal partial class BLM : Caster
 
                 if (!HasStatusEffect(Buffs.Triplecast) && ActionReady(Triplecast) &&
                     HasBattleTarget() && InActionRange(Fire2) &&
-                    HasMaxUmbralHeartStacks && !ActionReady(Manafont))
+                    HasMaxUmbralHeartStacks && !ActionReady(Manafont) &&
+                    !JustUsed(Triplecast))
                     return Triplecast;
 
                 if (ActionReady(Flare))
@@ -306,6 +318,7 @@ internal partial class BLM : Caster
 
                 if (IsEnabled(Preset.BLM_ST_LeyLines) &&
                     ActionReady(LeyLines) && !HasStatusEffect(Buffs.LeyLines) &&
+                    !JustUsed(LeyLines) &&
                     GetRemainingCharges(LeyLines) > BLM_ST_LeyLinesCharges &&
                     (BLM_ST_LeyLinesMovement == 1 ||
                      BLM_ST_LeyLinesMovement == 0 && !IsMoving() && TimeStoodStill > TimeSpan.FromSeconds(BLM_ST_LeyLinesTimeStill)) &&
@@ -327,10 +340,10 @@ internal partial class BLM : Caster
 
                     if (IsEnabled(Preset.BLM_ST_Triplecast) &&
                         ActionReady(Triplecast) && IsOnCooldown(Role.Swiftcast) &&
-                        HasBattleTarget() && InActionRange(Fire) &&
+                        HasBattleTarget() && InActionRange(Fire) && !JustUsed(Triplecast) &&
                         !HasStatusEffect(Role.Buffs.Swiftcast) && !HasStatusEffect(Buffs.Triplecast) &&
                         (BLM_ST_Triplecast_WhenToUse == 0 || !HasStatusEffect(Buffs.LeyLines)) &&
-                        (BLM_ST_MovementOption[0] && GetRemainingCharges(Triplecast) > BLM_ST_Triplecast_MovementCharges ||
+                        (BLM_ST_MovementOption[0] && GetRemainingCharges(Triplecast) > BLM_ST_TriplecastMovementCharges ||
                          !BLM_ST_MovementOption[0]) && JustUsed(Despair) && !ActionReady(Manafont))
                         return Triplecast;
 
@@ -358,10 +371,10 @@ internal partial class BLM : Caster
 
                         if (IsEnabled(Preset.BLM_ST_Triplecast) &&
                             ActionReady(Triplecast) && IsOnCooldown(Role.Swiftcast) &&
-                            HasBattleTarget() && InActionRange(Fire) &&
+                            HasBattleTarget() && InActionRange(Fire) && !JustUsed(Triplecast) &&
                             !HasStatusEffect(Role.Buffs.Swiftcast) && !HasStatusEffect(Buffs.Triplecast) &&
                             (BLM_ST_Triplecast_WhenToUse == 0 || !HasStatusEffect(Buffs.LeyLines)) &&
-                            (BLM_ST_MovementOption[0] && GetRemainingCharges(Triplecast) > BLM_ST_Triplecast_MovementCharges ||
+                            (BLM_ST_MovementOption[0] && GetRemainingCharges(Triplecast) > BLM_ST_TriplecastMovementCharges ||
                              !BLM_ST_MovementOption[0]) && JustUsed(Despair) && !ActionReady(Manafont))
                             return Triplecast;
                     }
@@ -369,7 +382,7 @@ internal partial class BLM : Caster
 
                 if (IsEnabled(Preset.BLM_ST_Manaward) &&
                     ActionReady(Manaward) &&
-                    PlayerHealthPercentageHp() < BLM_ST_Manaward_Threshold && GroupDamageIncoming())
+                    PlayerHealthPercentageHp() < BLM_ST_ManawardHPThreshold && GroupDamageIncoming())
                     return Manaward;
 
                 if (IsEnabled(Preset.BLM_ST_Addle) &&
@@ -398,9 +411,9 @@ internal partial class BLM : Caster
             if (IsMoving() && InCombat() &&
                 HasBattleTarget() && InActionRange(Fire))
             {
-                foreach(int priority in BLM_ST_Movement_Priority.OrderBy(x => x))
+                foreach(int priority in BLM_ST_MovementPriority.OrderBy(x => x))
                 {
-                    int index = BLM_ST_Movement_Priority.IndexOf(priority);
+                    int index = BLM_ST_MovementPriority.IndexOf(priority);
                     if (CheckMovementConfigMeetsRequirements(index, out uint action))
                         return action;
                 }
@@ -411,10 +424,10 @@ internal partial class BLM : Caster
                 // TODO: Revisit when Raid Buff checks are in place
                 if (IsEnabled(Preset.BLM_ST_UsePolyglot) &&
                     (BLM_ST_MovementOption[3] &&
-                     PolyglotStacks > BLM_ST_Polyglot_Movement &&
-                     PolyglotStacks > BLM_ST_Polyglot_Save ||
+                     PolyglotStacks > BLM_ST_PolyglotMovement &&
+                     PolyglotStacks > BLM_ST_PolyglotSaveUsage ||
                      !BLM_ST_MovementOption[3] &&
-                     PolyglotStacks > BLM_ST_Polyglot_Save))
+                     PolyglotStacks > BLM_ST_PolyglotSaveUsage))
                     return LevelChecked(Xenoglossy)
                         ? Xenoglossy
                         : Foul;
@@ -439,6 +452,10 @@ internal partial class BLM : Caster
                     (LevelChecked(Despair) && MP.Cur - MP.FireI >= 800 ||
                      !LevelChecked(Despair)))
                     return FireSpam;
+
+                if (ActionReady(Flare) &&
+                    !LevelChecked(Fire4) && MP.Cur <= 800)
+                    return Flare;
 
                 if (IsEnabled(Preset.BLM_ST_Despair) &&
                     ActionReady(Despair))
@@ -509,7 +526,9 @@ internal partial class BLM : Caster
                 if (IsEnabled(Preset.BLM_AoE_Movement) &&
                     IsMoving() && InCombat() &&
                     HasBattleTarget() && InActionRange(Fire2) &&
-                    ActionReady(Triplecast) && !HasStatusEffect(Buffs.Triplecast))
+                    ActionReady(Triplecast) &&
+                    !HasStatusEffect(Buffs.Triplecast) &&
+                    !JustUsed(Triplecast))
                     return Triplecast;
 
                 if (IsEnabled(Preset.BLM_AoE_Manafont) &&
@@ -528,6 +547,7 @@ internal partial class BLM : Caster
 
                 if (IsEnabled(Preset.BLM_AoE_LeyLines) &&
                     ActionReady(LeyLines) && !HasStatusEffect(Buffs.LeyLines) &&
+                    !JustUsed(LeyLines) &&
                     GetRemainingCharges(LeyLines) > BLM_AoE_LeyLinesCharges &&
                     (BLM_AoE_LeyLinesMovement == 1 ||
                      BLM_AoE_LeyLinesMovement == 0 && !IsMoving() && TimeStoodStill > TimeSpan.FromSeconds(BLM_AoE_LeyLinesTimeStill)) &&
@@ -563,9 +583,9 @@ internal partial class BLM : Caster
 
                 if (IsEnabled(Preset.BLM_AoE_Triplecast) &&
                     !HasStatusEffect(Buffs.Triplecast) && ActionReady(Triplecast) &&
-                    HasBattleTarget() && InActionRange(Fire2) &&
-                    GetRemainingCharges(Triplecast) > BLM_AoE_Triplecast_HoldCharges && HasMaxUmbralHeartStacks &&
-                    !ActionReady(Manafont))
+                    HasBattleTarget() && InActionRange(Fire2) && !JustUsed(Triplecast) &&
+                    GetRemainingCharges(Triplecast) > BLM_AoE_TriplecastHoldCharges &&
+                    HasMaxUmbralHeartStacks && !ActionReady(Manafont))
                     return Triplecast;
 
                 if (ActionReady(Flare))
@@ -671,6 +691,22 @@ internal partial class BLM : Caster
         }
     }
 
+    internal class BLM_F1toF4 : CustomCombo
+    {
+        protected internal override Preset Preset => Preset.BLM_F1toF4;
+        protected override uint Invoke(uint actionID)
+        {
+            if (actionID is not Fire)
+                return actionID;
+
+            return ActiveParadox && IcePhase
+                ? Paradox
+                : ActionReady(Fire4)
+                    ? Fire4
+                    : actionID;
+        }
+    }
+
     internal class BLM_Fire4 : CustomCombo
     {
         protected internal override Preset Preset => Preset.BLM_Fire4;
@@ -742,6 +778,22 @@ internal partial class BLM : Caster
 
                 var _ => actionID
             };
+        }
+    }
+
+    internal class BLM_B1toB4 : CustomCombo
+    {
+        protected internal override Preset Preset => Preset.BLM_B1toB4;
+        protected override uint Invoke(uint actionID)
+        {
+            if (actionID is not Blizzard)
+                return actionID;
+
+            return ActiveParadox && FirePhase
+                ? Paradox
+                : ActionReady(Blizzard4)
+                    ? Blizzard4
+                    : actionID;
         }
     }
 

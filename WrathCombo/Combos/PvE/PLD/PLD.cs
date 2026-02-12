@@ -1,5 +1,6 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
 using System;
+using ECommons.GameFunctions;
 using WrathCombo.Core;
 using WrathCombo.CustomComboNS;
 using WrathCombo.Data;
@@ -86,7 +87,7 @@ internal partial class PLD : Tank
                         switch (CooldownFightOrFlight)
                         {
                             // Circle of Scorn / Spirits Within
-                            case > 15 when ActionReady(CircleOfScorn):
+                            case > 15 when ActionReady(CircleOfScorn) && NumberOfEnemiesInRange(CircleOfScorn) > 0:
                                 return CircleOfScorn;
 
                             case > 15 when ActionReady(SpiritsWithin):
@@ -230,7 +231,7 @@ internal partial class PLD : Tank
                         // Circle of Scorn / Spirits Within
                         switch (CooldownFightOrFlight)
                         {
-                            case > 15 when ActionReady(CircleOfScorn):
+                            case > 15 when ActionReady(CircleOfScorn) && NumberOfEnemiesInRange(CircleOfScorn) > 0:
                                 return CircleOfScorn;
 
                             case > 15 when ActionReady(SpiritsWithin):
@@ -353,7 +354,7 @@ internal partial class PLD : Tank
                         {
                             // Circle of Scorn / Spirits Within
                             case > 15 when IsEnabled(Preset.PLD_ST_AdvancedMode_CircleOfScorn) &&
-                                           ActionReady(CircleOfScorn):
+                                           ActionReady(CircleOfScorn) && NumberOfEnemiesInRange(CircleOfScorn) > 0:
                                 return CircleOfScorn;
 
                             case > 15 when IsEnabled(Preset.PLD_ST_AdvancedMode_SpiritsWithin) &&
@@ -377,6 +378,11 @@ internal partial class PLD : Tank
                         return OriginalHook(Requiescat);
                 }
 
+                // Goring Blade Prioritized
+                if (IsEnabled(Preset.PLD_ST_AdvancedMode_GoringBlade) &&
+                    HasStatusEffect(Buffs.GoringBladeReady) && InMeleeRange() && PLD_ST_AdvancedMode_GoringBladePrioritize == 0)
+                    return GoringBlade;
+                
                 // Requiescat Phase
                 switch (HasDivineMagicMP)
                 {
@@ -510,7 +516,7 @@ internal partial class PLD : Tank
                         // Circle of Scorn / Spirits Within
                         switch (CooldownFightOrFlight)
                         {
-                            case > 15 when IsEnabled(Preset.PLD_AoE_AdvancedMode_CircleOfScorn) && ActionReady(CircleOfScorn):
+                            case > 15 when IsEnabled(Preset.PLD_AoE_AdvancedMode_CircleOfScorn) && ActionReady(CircleOfScorn) && NumberOfEnemiesInRange(CircleOfScorn) > 0:
                                 return CircleOfScorn;
 
                             case > 15 when IsEnabled(Preset.PLD_AoE_AdvancedMode_SpiritsWithin) && ActionReady(SpiritsWithin):
@@ -831,6 +837,31 @@ internal partial class PLD : Tank
                     ? SimpleTarget.LowestHPPAlly.IfNotThePlayer().IfInParty()
                     : null);
 
+            return target != null
+                ? actionID.Retarget(target)
+                : actionID;
+        }
+    }
+    internal class PLD_RetargetIntervene : CustomCombo
+    {
+        protected internal override Preset Preset => Preset.PLD_RetargetIntervene;
+
+        protected override uint Invoke(uint actionID)
+        {
+            if (actionID is not Intervene)
+                return actionID;
+            
+            IGameObject? target =
+                // Mouseover
+                SimpleTarget.Stack.MouseOver.IfHostile()
+                    .IfWithinRange(Intervene.ActionRange()) ??
+
+                // Nearest Enemy to Mouseover
+                SimpleTarget.NearestEnemyToTarget(SimpleTarget.Stack.MouseOver,
+                    Intervene.ActionRange()) ??
+    
+                CurrentTarget.IfHostile().IfWithinRange(Intervene.ActionRange());
+            
             return target != null
                 ? actionID.Retarget(target)
                 : actionID;

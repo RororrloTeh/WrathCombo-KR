@@ -11,21 +11,11 @@ namespace WrathCombo.Combos.PvE;
 
 internal partial class RPR
 {
-    #region Misc
-
-    //Auto Arcane Crest
-    private static bool CanUseArcaneCrest =>
-        ActionReady(ArcaneCrest) && InCombat() &&
-        (GroupDamageIncoming(3f) ||
-         !IsInParty() && IsPlayerTargeted());
-
-    #endregion
-
     #region Enshroud
 
     private static bool CanEnshroud()
     {
-        if (LevelChecked(Enshroud) && (Shroud >= 50 || HasStatusEffect(Buffs.IdealHost)) &&
+        if ((ActionReady(Enshroud) || HasStatusEffect(Buffs.IdealHost)) &&
             !HasStatusEffect(Buffs.SoulReaver) && !HasStatusEffect(Buffs.Executioner) && HasBattleTarget() &&
             !HasStatusEffect(Buffs.PerfectioParata) && !HasStatusEffect(Buffs.Enshrouded))
         {
@@ -107,6 +97,19 @@ internal partial class RPR
     }
 
     #endregion
+    #region Misc
+
+    //Auto Arcane Crest
+    private static bool CanUseArcaneCrest =>
+        ActionReady(ArcaneCrest) && InCombat() &&
+        (GroupDamageIncoming(3f) ||
+         !IsInParty() && IsPlayerTargeted());
+
+    private static int HPThresholdArcaneCircle =>
+        RPR_ST_ArcaneCircleBossOption == 1 ||
+        !InBossEncounter() ? RPR_ST_ArcaneCircleHPOption : 0;
+
+    #endregion
 
     #region Combos
 
@@ -180,7 +183,7 @@ internal partial class RPR
 
         public override List<(int[] Steps, Func<bool> Condition)> SkipSteps { get; set; } =
         [
-            ([1], () => RPR_Opener_StartChoice == 1)
+            ([1], () => InMeleeRange())
         ];
 
         public override List<(int[], uint, Func<bool>)> SubstitutionSteps { get; set; } =
@@ -231,7 +234,7 @@ internal partial class RPR
 
         public override List<(int[] Steps, Func<bool> Condition)> SkipSteps { get; set; } =
         [
-            ([1], () => RPR_Opener_StartChoice == 1)
+            ([1], () => InMeleeRange())
         ];
         public override Preset Preset => Preset.RPR_ST_Opener;
         public override List<(int[], uint, Func<bool>)> SubstitutionSteps { get; set; } =
@@ -255,8 +258,6 @@ internal partial class RPR
     #region Gauge
 
     private static RPRGauge Gauge => GetJobGauge<RPRGauge>();
-
-    private static byte Shroud => Gauge.Shroud;
 
     private static byte Soul => Gauge.Soul;
 

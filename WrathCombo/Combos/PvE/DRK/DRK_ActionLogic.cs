@@ -330,7 +330,8 @@ internal partial class DRK
 
             // Bail if Mitigation is not enabled for this combo
             // (unless IPC-controlled)
-            if (config != 1 || P.UIHelper.PresetControlled(preset)?.enabled == true)
+            if (config != (int)SimpleMitigation.On &&
+                P.UIHelper.PresetControlled(preset)?.enabled != true)
                 return false;
 
             if (InBossEncounter())
@@ -348,6 +349,9 @@ internal partial class DRK
         {
             // Bail if non-boss mitigation is not enabled
             if (!IsEnabled(Preset.DRK_Mitigation_NonBoss))
+                return false;
+            //Bail if we haven't been in combat long enough and are moving (Still Pulling)
+            if (CombatEngageDuration().TotalSeconds <= 15 && IsMoving()) 
                 return false;
 
             #region Living Dead

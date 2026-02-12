@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.Types;
+﻿using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
 using ECommons.GameFunctions;
 using ECommons.GameHelpers;
@@ -33,7 +34,9 @@ internal abstract partial class CustomComboFunctions
         "vfx/lockon/eff/m0676trg_tw_s6_d0t1p",          // M11 Raw Steel
         "vfx/lockon/eff/z6r2b3_8sec_lockon_c0a1",       // Kam'lanaut Princely Blow
         "vfx/lockon/eff/m0742trg_b1t1",                 // M7 Abominable Blink
-        "vfx/lockon/eff/x6r9_tank_lockonae"             // M9 Hardcore Large TB
+        "vfx/lockon/eff/x6r9_tank_lockonae",            // M9 Hardcore Large TB
+        "vfx/lockon/eff/target_ae_s5f",                 // The Tower at Paradigm's Breach
+        "vfx/lockon/eff/sharelaser2tank"                // Found in VFXEditor, unknown source
     ], StringComparer.OrdinalIgnoreCase);
 
     // List of Multi-Hit Shared Damage Effect Paths
@@ -42,19 +45,20 @@ internal abstract partial class CustomComboFunctions
         "vfx/lockon/eff/com_share5a1",
         "vfx/lockon/eff/com_share6m7s_1v",
         "vfx/lockon/eff/com_share8s_0v",
-        "vfx/lockon/eff/share_laser_5s_c0w", // Line
-        "vfx/lockon/eff/share_laser_8s_c0g", // Line
-        "vfx/lockon/eff/m0922trg_t2w" //Some Lightning based effect, presume specific raid?
+        "vfx/lockon/eff/share_laser_5s_c0w",            // Line
+        "vfx/lockon/eff/share_laser_8s_c0g",            // Line
+        "vfx/lockon/eff/m0922trg_t2w"                   // Some Lightning based effect, presume specific raid?
     ], StringComparer.OrdinalIgnoreCase);
 
     // List of Regular Shared Damage Effect Paths
     private static readonly FrozenSet<string> SharedDmgPaths = FrozenSet.ToFrozenSet([
         "vfx/lockon/eff/coshare",
         "vfx/lockon/eff/share_laser",
+        "vfx/lockon/eff/share_1",
         "vfx/lockon/eff/com_share",
         "vfx/lockon/eff/d1084_share_24m_s6_0k2",        // San d'Oria The Second Walk
-        // Won't work till Static VFX tracking is added
         "vfx/monster/gimmick2/eff/z3o7_b1_g06c0t",      // Puppet's Bunker, Superior Flight Unit.
+        "vfx/monster/gimmick3/eff/n4r1_b2_g06x",        // Vanguard, Protector
         "vfx/monster/gimmick4/eff/z5r1_b4_g09c0c"       // Aglaia, Nald'thal
     ], StringComparer.OrdinalIgnoreCase);
 
@@ -82,6 +86,7 @@ internal abstract partial class CustomComboFunctions
         isMultiHit = false;
 
         bool MH = false; //holder for isMultiHit
+        bool PlaybackClosest = false;
 
         var vfxEffects = VfxManager.TrackedEffects.FilterToTargeted();
 
@@ -124,19 +129,24 @@ internal abstract partial class CustomComboFunctions
         // Regular share on NPC, That marker
 
         IBattleChara? bestTarget = null;
+
         if (AoEEffects.Count == 1) // Most battles are singular, skip LINQ if so
             bestTarget = AoEEffects[0].TargetID.GetObject() as IBattleChara;
         else
+        {
+            #if DEBUG
+            if (Svc.Condition[ConditionFlag.DutyRecorderPlayback]) PlaybackClosest = true; //Trick to allow alliance targets during ARR recording Playback.
+            #endif
             bestTarget = AoEEffects //Note this will fail on Player based ARR Recordings. Trust Recordings are fine
                 .Select(vfx => vfx.TargetID.GetObject())
                 .OfType<IBattleChara>()
                 // Multi-hit can be on anyone (only 1 per alliance), regular only on party members or NPCs,
-                .Where(chara => MH || chara.IsInParty() || chara is IBattleNpc)
+                .Where(chara => MH || chara.IsInParty() || chara is IBattleNpc || PlaybackClosest)
                 // Prioritize party members first, then by distance
                 .OrderBy(chara => chara.IsInParty() ? 0 : 1)
                 .ThenBy(chara => GetTargetDistance(chara))
                 .FirstOrDefault();
-
+        }
         if (bestTarget is null)
             return false;
 

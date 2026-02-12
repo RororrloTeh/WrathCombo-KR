@@ -78,7 +78,7 @@ internal partial class NIN
                                                   !TrickDebuff);
     internal static bool CanThrowingDaggers => !MudraPhase && ActionReady(ThrowingDaggers) && HasTarget() && !InMeleeRange() &&
                                                !HasStatusEffect(Buffs.RaijuReady);
-    internal static bool CanThrowingDaggersAoE => !MudraPhase && ActionReady(ThrowingDaggers) && HasTarget() && GetTargetDistance() >= 4.5 &&
+    internal static bool CanThrowingDaggersAoE => !MudraPhase && ActionReady(ThrowingDaggers) && HasTarget() && GetTargetDistance() >= 4.5 && InActionRange(ThrowingDaggers) &&
                                                   !HasStatusEffect(Buffs.RaijuReady);
     internal static bool CanRaiju => !MudraPhase && HasStatusEffect(Buffs.RaijuReady);
     #endregion
@@ -103,10 +103,10 @@ internal partial class NIN
 
     internal static bool CanMugST => ActionReady(OriginalHook(Mug)) && CanApplyStatus(CurrentTarget, [Debuffs.Mug, Debuffs.Dokumori]) && CanDelayedWeave(1.25f, .6f, 10) && !MudraPhase &&
                                    (TrickCD <= 6 || TrickDisabledST) &&
-                                   (LevelChecked(Dokumori) && GetTargetDistance() <= 8 || InMeleeRange());
+                                   (LevelChecked(Dokumori) && InActionRange(Dokumori) || InMeleeRange());
     internal static bool CanMugAoE => ActionReady(OriginalHook(Mug)) && CanApplyStatus(CurrentTarget, [Debuffs.Mug, Debuffs.Dokumori]) && CanDelayedWeave(1.25f, .6f, 10) && !MudraPhase &&
                                    (TrickCD <= 6 || TrickDisabledAoE) &&
-                                   (LevelChecked(Dokumori) && GetTargetDistance() <= 8 || InMeleeRange());
+                                   (LevelChecked(Dokumori) && InActionRange(Dokumori) || InMeleeRange());
 
     internal static bool TrickDebuff => HasStatusEffect(Debuffs.TrickAttack, CurrentTarget) || HasStatusEffect(Debuffs.KunaisBane, CurrentTarget) || JustUsed(OriginalHook(TrickAttack));
     internal static bool MugDebuff => HasStatusEffect(Debuffs.Mug, CurrentTarget) || HasStatusEffect(Debuffs.Dokumori, CurrentTarget) || JustUsed(OriginalHook(Mug));
@@ -154,9 +154,9 @@ internal partial class NIN
                                       (BuffWindow || TrickDisabledAoE);
 
     internal static bool CanAssassinate => !MudraPhase && ActionReady(OriginalHook(Assassinate)) && NinjaWeave &&
-                                           (BuffWindow || TrickDisabledST);
+                                           (BuffWindow || TrickDisabledST || !LevelChecked(Suiton));
     internal static bool CanAssassinateAoE => !MudraPhase && ActionReady(OriginalHook(Assassinate)) && NinjaWeave &&
-                                           (BuffWindow || TrickDisabledAoE);
+                                           (BuffWindow || TrickDisabledAoE || !LevelChecked(Huton));
 
     internal static bool CanTenChiJin => !MudraPhase && !MudraAlmostReady && IsOffCooldown(TenChiJin) && LevelChecked(TenChiJin) && NinjaWeave &&
                                          (BuffWindow || TrickDisabledST);

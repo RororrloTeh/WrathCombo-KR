@@ -1,5 +1,6 @@
 #region Dependencies
 
+using Dalamud.Game.ClientState.Objects.Types;
 using WrathCombo.Core;
 using WrathCombo.CustomComboNS;
 using WrathCombo.Data;
@@ -90,9 +91,17 @@ internal partial class GNB : Tank
                 CanWeave())
                 return OriginalHook(Continuation);
 
-            //Gnashing Fang - burst
-            if (ShouldUseGnashingFangBurst(Preset.GNB_ST_Simple))
-                return GnashingFang;
+            //Burst - Lv100 we want to send Reign as soon as we enter No Mercy, else we send Gnashing Fang (since no Reign)
+            if (LevelChecked(ReignOfBeasts))
+            {
+                if (ShouldUseReignOfBeasts(Preset.GNB_ST_Simple))
+                    return ReignOfBeasts;
+            }
+            else
+            {
+                if (ShouldUseGnashingFangBurst(Preset.GNB_ST_Simple))
+                    return GnashingFang;
+            }
 
             //Double Down
             if (ShouldUseDoubleDown(Preset.GNB_ST_Simple))
@@ -102,21 +111,17 @@ internal partial class GNB : Tank
             if (ShouldUseSonicBreak(Preset.GNB_ST_Simple))
                 return SonicBreak;
 
-            //Reign of Beasts
-            if (ShouldUseReignOfBeasts(Preset.GNB_ST_Simple))
-                return OriginalHook(ReignOfBeasts);
-
             //Gnashing Fang 2 - filler boogaloo
             if (ShouldUseGnashingFangFiller(Preset.GNB_ST_Simple))
                 return GnashingFang;
 
-            //Savage Claw & Wicked Talon
-            if (GunStep is 1 or 2)
-                return OriginalHook(GnashingFang);
-
             //Noble Blood & Lion Heart
             if (GunStep is 3 or 4)
                 return OriginalHook(ReignOfBeasts);
+
+            //Savage Claw & Wicked Talon
+            if (GunStep is 1 or 2)
+                return OriginalHook(GnashingFang);
 
             //Burst Strike
             if (ShouldUseBurstStrike(Preset.GNB_ST_Simple, 0))
@@ -220,9 +225,17 @@ internal partial class GNB : Tank
                 CanWeave())
                 return OriginalHook(Continuation);
 
-            //Gnashing Fang - burst
-            if (ShouldUseGnashingFangBurst(Preset.GNB_ST_GnashingFang))
-                return GnashingFang;
+            //Burst - Lv100 we want to send Reign as soon as we enter No Mercy, else we send Gnashing Fang (since no Reign)
+            if (LevelChecked(ReignOfBeasts))
+            {
+                if (ShouldUseReignOfBeasts(Preset.GNB_ST_Reign))
+                    return ReignOfBeasts;
+            }
+            else
+            {
+                if (ShouldUseGnashingFangBurst(Preset.GNB_ST_GnashingFang))
+                    return GnashingFang;
+            }
 
             //Double Down
             if (ShouldUseDoubleDown(Preset.GNB_ST_DoubleDown))
@@ -232,13 +245,19 @@ internal partial class GNB : Tank
             if (ShouldUseSonicBreak(Preset.GNB_ST_SonicBreak))
                 return SonicBreak;
 
-            //Reign of Beasts
-            if (ShouldUseReignOfBeasts(Preset.GNB_ST_Reign))
-                return OriginalHook(ReignOfBeasts);
-
             //Gnashing Fang 2 - filler boogaloo
             if (ShouldUseGnashingFangFiller(Preset.GNB_ST_GnashingFang))
                 return GnashingFang;
+
+            //Noble Blood & Lion Heart
+            if (IsEnabled(Preset.GNB_ST_Reign) &&
+                GunStep is 3 or 4)
+                return OriginalHook(ReignOfBeasts);
+
+            //Savage Claw & Wicked Talon
+            if (IsEnabled(Preset.GNB_ST_GnashingFang) &&
+                GunStep is 1 or 2)
+                return OriginalHook(GnashingFang);
 
             //Savage Claw & Wicked Talon
             if (IsEnabled(Preset.GNB_ST_GnashingFang) &&
@@ -474,9 +493,17 @@ internal partial class GNB : Tank
                 CanWeave())
                 return OriginalHook(Continuation);
 
-            //Gnashing Fang - burst
-            if (ShouldUseGnashingFangBurst(Preset.GNB_GF_Features))
-                return GnashingFang;
+            //Burst - Lv100 we want to send Reign as soon as we enter No Mercy, else we send Gnashing Fang (since no Reign)
+            if (LevelChecked(ReignOfBeasts))
+            {
+                if (ShouldUseReignOfBeasts(Preset.GNB_GF_Reign))
+                    return ReignOfBeasts;
+            }
+            else
+            {
+                if (ShouldUseGnashingFangBurst(Preset.GNB_GF_Features))
+                    return GnashingFang;
+            }
 
             //Double Down
             if (ShouldUseDoubleDown(Preset.GNB_GF_DoubleDown))
@@ -486,23 +513,19 @@ internal partial class GNB : Tank
             if (ShouldUseSonicBreak(Preset.GNB_GF_SonicBreak))
                 return SonicBreak;
 
-            //Reign of Beasts
-            if (ShouldUseReignOfBeastsGF(Preset.GNB_GF_Reign))
-                return OriginalHook(ReignOfBeasts);
-
             //Gnashing Fang 2 - filler boogaloo
             if (ShouldUseGnashingFangFiller(Preset.GNB_GF_Features))
                 return GnashingFang;
-
-            //Savage Claw & Wicked Talon
-            if (IsEnabled(Preset.GNB_GF_Features) &&
-                GunStep is 1 or 2)
-                return OriginalHook(GnashingFang);
 
             //Noble Blood & Lion Heart
             if (IsEnabled(Preset.GNB_GF_Reign) &&
                 GunStep is 3 or 4)
                 return OriginalHook(ReignOfBeasts);
+
+            //Savage Claw & Wicked Talon
+            if (IsEnabled(Preset.GNB_GF_Features) &&
+                GunStep is 1 or 2)
+                return OriginalHook(GnashingFang);
 
             //Burst Strike
             if (ShouldUseBurstStrike(Preset.GNB_GF_BurstStrike, GNB_GF_BurstStrike_Setup))
@@ -720,6 +743,32 @@ internal partial class GNB : Tank
     }
 
     #endregion
+    
+    internal class GNB_RetargetTrajectory: CustomCombo
+    {
+        protected internal override Preset Preset => Preset.GNB_RetargetTrajectory;
+
+        protected override uint Invoke(uint actionID)
+        {
+            if (actionID is not Trajectory)
+                return actionID;
+            
+            IGameObject? target =
+                // Mouseover
+                SimpleTarget.Stack.MouseOver.IfHostile()
+                    .IfWithinRange(Trajectory.ActionRange()) ??
+
+                // Nearest Enemy to Mouseover
+                SimpleTarget.NearestEnemyToTarget(SimpleTarget.Stack.MouseOver,
+                    Trajectory.ActionRange()) ??
+    
+                CurrentTarget.IfHostile().IfWithinRange(Trajectory.ActionRange());
+            
+            return target != null
+                ? actionID.Retarget(target)
+                : actionID;
+        }
+    }
 
     #region Basic Combo
     internal class GNB_ST_BasicCombo : CustomCombo
