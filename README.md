@@ -65,16 +65,16 @@
 이는 플러그인 설치 관리자 하단의 버튼을 통해서도 가능하며,
 채팅창에 `/xlsettings` 를 입력해서도 열 수 있습니다.
 
-1. Custom Plugin Repositories 항목에서 하단의 빈 입력란에 `https://love.puni.sh/ment.json` 을 입력합니다.
+1. 커스텀 플러그인 저장소 항목에서 하단의 빈 입력란에 `https://love.puni.sh/ment.json` 을 입력합니다.
 2. "+" 버튼을 클릭합니다.
-3. "Save and Close" 버튼을 클릭합니다.
+3. "변경사항 저장하고 닫기" 버튼을 클릭합니다.
 
 게임 내에서 Dalamud 플러그인 설치 관리자 메뉴를 열고 아래의 단계를 따라주세요.
 이는 채팅창에 `/xlplugins` 를 입력하여 열 수 있습니다.
 
-1. 왼쪽의 "All Plugins" 탭을 클릭합니다.
+1. 왼쪽의 "모든 플러그인" 탭을 클릭합니다.
 2. "Wrath Combo" 를 검색합니다.
-3. "Install" 버튼을 클릭합니다.
+3. "설치" 버튼을 클릭합니다.
 
 <p align="right"><a href="#top" alt="Back to top"><img src=/res/readme_images/arrowhead-up.png width ="25"/></a></p>
 </section> <br>
