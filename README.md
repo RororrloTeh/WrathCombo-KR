@@ -150,7 +150,7 @@ Wrath Combo는 Orbwalker 를 사용하여 자동 딜사이클 모드에서 플�
 2. "Orbwalker 통합 활성화"를 체크합니다.
 3. Orbwalker를 열고 설정을 확인합니다: `/orbwalker`.
 
-### [AutoDuty](https://github.com/ffxivcode/AutoDuty)
+### [AutoDuty](https://github.com/erdelf/AutoDuty)
 
 Wrath Combo는 AutoDuty의 딜사이클 엔진으로 사용될 수 있으며,
 던전 중에 Wrath Combo의 자동 딜사이클이 사용됩니다.
