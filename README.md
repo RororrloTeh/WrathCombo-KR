@@ -98,81 +98,81 @@
  - 탱커용 기술 앙갚음 겹침 보호
  - 탱커용 기술 끊기 기능
  - 힐러용 부활 기능
- - Magical Ranged DPS Double Addle Protection
- - Magical Ranged DPS Raise Feature
- - Melee DPS Double Feint Protection
- - Melee DPS True North Protection
- - Physical Ranged DPS Double Mitigation Protection
- - Physical Ranged DPS Interrupt Feature
+ - 마법 원거리 딜러용 정신 교란 겹침 보호
+ - 마법 원거리 딜러용 부활 기능
+ - 근접 딜러용 견제 겹침 보호
+ - 근접 딜러용 진북 보호
+ - 물리 원거리 딜러용 피해량 감소 버프 겹침 보호
+ - 물리 원거리 딜러용 기술 끊기 기능
     
- And much more!
+ 그리고 훨씬 더 많은 기능들!
 
   </details>
 
-  <details><summary>PvP Features</summary> <br>
+  <details><summary>PvP 기능</summary> <br>
 
- - "Burst Mode" offense features for all jobs
- - Emergency Heals
- - Emergency Guard
- - Quick Purify
- - Guard Cancellation Prevention
+ - 모든 직업을 위한 "버스트 모드" 공격 기능
+ - 긴급 힐
+ - 긴급 방어
+ - 빠른 정화
+ - 방어 취소 방지
     
- And much more!
+그리고 훨씬 더 많은 기능들!
 
   </details>
 
-  <details><summary>Miscellaneous Features</summary> <br>
+  <details><summary>기타 기능</summary> <br>
 
-- Island Sanctuary Sprint Feature
-- [BTN/MIN] Eureka Feature
-- [BTN/MIN] Locate & Truth Feature
-- [FSH] Cast to Hook Feature
-- [FSH] Diving Feature
+- 무인도 개척 질주 기능
+- [BTN/MIN] 에우레카 기능
+- [BTN/MIN] 눈 &  탐구자 기능
+- [FSH] 낚싯대 던지기 낚아채기 기능
+- [FSH] 잠수 기능
 
- And much more!
+ 그리고 훨씬 더 많은 기능들!
 
   </details>
 
-To experience the full set of features on
-offer, <a href="#installation" alt="install">install</a> the plugin or visit
-the [Discord](https://discord.gg/Zzrcc8kmvy) server for more info.
+제공되는 전체 기능을 경험하려면,
+플러그인을 <a href="#installation" alt="install">설치</a> 하거나 더 많은 정보를
+얻기 위해 [Discord](https://discord.gg/Zzrcc8kmvy) 서버를 방문하세요.
 
 <p align="right"><a href="#top" alt="Back to top"><img src=/res/readme_images/arrowhead-up.png width ="25"/></a></p>
 
-## Use with Other Plugins
+## 다른 플러그인과 함께 사용
 
 ### [Orbwalker](https://puni.sh/plugin/Orbwalker)
 
-Wrath Combo can use Orbwalker to stop player movement in Auto-Rotation mode 
-instead of requiring the player to stop before choosing to cast.
+Wrath Combo는 Orbwalker 를 사용하여 자동 딜사이클 모드에서 플레이어의 움직임을 멈출 수 있으며, 
+이는 플레이어가 캐스팅을 선택하기 전에 멈춰야 하는 필요성을 대체합니다.
 
-1. Open Wrath Combo's Auto-Rotation Settings: `/wrath autosettings`.
-2. Check "Enable Orbwalker Integration".
-3. Open Orbwalker and confirm your settings: `/orbwalker`.
+1. Wrath Combo의 자동 딜사이클 설정을 엽니다: `/wrath autosettings`.
+2. "Orbwalker 통합 활성화"를 체크합니다.
+3. Orbwalker를 열고 설정을 확인합니다: `/orbwalker`.
 
 ### [AutoDuty](https://github.com/ffxivcode/AutoDuty)
 
-Wrath Combo can be used as the Rotation Engine for AutoDuty, such that Wrath Combo's
-Auto-Rotation will be used during duties.
-To enable this:
-1. Open AutoDuty's Config window: `/autoduty cfg`.
-2. Expand the "Duty Config Settings" section.
-3. Enable "Auto Manage Rotation Plugin State".
-4. (Also check "> Wrath Config Options <" -> "Auto setup jobs for autorotation")\
-   (if you already have your jobs setup, you can skip this step)
+Wrath Combo는 AutoDuty의 딜사이클 엔진으로 사용될 수 있으며,
+던전 중에 Wrath Combo의 자동 딜사이클이 사용됩니다.
+이를 활성화하려면:
+1. AutoDuty의 설정 창을 엽니다: `/autoduty cfg`.
+2. "Duty 설정" 섹션을 확장합니다.
+3. "딜사이클 플러그인 상태 자동 관리"를 활성화합니다.
+4. ("> Wrath Combo 설정 <" -> "자동 딜사이클을 위해 직업 자동 설정"도 체크)\
+   (이미 직업 설정이 되어 있다면 이 단계는 건너뛸 수 있습니다)
 
 ### [Questionable](https://git.carvel.li/liza/Questionable)
 
-Wrath Combo can be used as the Combat Module for Questionable, such that Wrath 
-Combo's Auto-Rotation will be employed during questing.
-To enable this:
-1. Open Questionable's Settings window: `/qst config`.
-2. Go to the "General" tab.
-3. Select "Wrath Combo" as the "Preferred Combat Module".
+Wrath Combo는 Questionable의 전투 모듈로 사용될 수 있으며,
+퀘스트 중에 Wrath Combo의 자동 로테이션이 사용됩니다.
+이를 활성화하려면:
+1. Questionable의 설정 창을 엽니다: `/qst config`.
+2. "General" 탭으로 이동합니다.
+3. "Preferred Combat Module"로 "Wrath Combo"를 선택합니다.
 
-> By default, the two plugins above will ensure that combos in Wrath are set up, and
-will lock all settings under those combos to `On` if combos were not set up, to
-ensure that the rotation will run.
+> 기본적으로 위의 두 플러그인은 Wrath에서 콤보가 설정되도록 보장하며, 
+콤보가 설정되지 않은 경우 해당 콤보 아래의 
+모든 설정을 `On` 으로 잠가 딜사이클이 실행되도록 합니다.
 
   <p align="right"><a href="#top" alt="Back to top"><img src=/res/readme_images/arrowhead-up.png width ="25"/></a></p>
 </section> 
@@ -180,9 +180,9 @@ ensure that the rotation will run.
 <!-- Commands -->
 <section>
 
-# Commands
+# 명령어
 
-| **Chat command**                       | **Function**                                                                                                                                                                   |
+| **채팅 명령어**                       | **기능**                                                                                                                                                                   |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `/wrath`                               | Toggles the main plugin window, where you can enable/disable features, access settings and more.                                                                               |
 | `/wrath pve`                           | Opens the main plugin window, to the PvE tab.                                                                                                                                  |
@@ -216,17 +216,17 @@ ensure that the rotation will run.
 <!-- Contributing -->
 <section>
 
-# Contributing
+# 기여
 
-Contributions to the project are always welcome - please feel free to submit
-a [pull request](https://github.com/PunishXIV/WrathCombo/pulls) here on GitHub,
-but ideally get in contact with us over on
-the [Discord](https://discord.gg/Zzrcc8kmvy) server so we can communicate with one
-another to make any necessary changes and review your submission!
+프로젝트에 대한 기여는 언제나 환영합니다 - GitHub에서
+[pull request](https://github.com/PunishXIV/WrathCombo/pulls)를 자유롭게 제출해 주세요,
+하지만 이상적으로는
+[Discord](https://discord.gg/Zzrcc8kmvy) 서버에서 우리와 연락하여 필요한 변경 사항을 만들고
+제출물을 검토할 수 있도록 소통할 수 있으면 좋습니다!
 
-You may also find [contributing info](CONTRIBUTING.md) and
-[available guides](CONTRIBUTING.md#guides-on-using-specific-parts-of-wrath) helpful
-in getting started.
+
+시작하는 데 도움이 될 [기여 정보](CONTRIBUTING.md)와
+[사용 가능한 가이드](CONTRIBUTING.md#guides-on-using-specific-parts-of-wrath)도 찾을 수 있습니다.
 
    <p align="right"><a href="#top" alt="Back to top"><img src=/res/readme_images/arrowhead-up.png width ="25"/></a></p>
 </section>
