@@ -164,7 +164,7 @@ Wrath Combo는 AutoDuty의 딜사이클 엔진으로 사용될 수 있으며,
 ### [Questionable](https://git.carvel.li/liza/Questionable)
 
 Wrath Combo는 Questionable의 전투 모듈로 사용될 수 있으며,
-퀘스트 중에 Wrath Combo의 자동 로테이션이 사용됩니다.
+퀘스트 중에 Wrath Combo의 자동 딜사이클이 사용됩니다.
 이를 활성화하려면:
 1. Questionable의 설정 창을 엽니다: `/qst config`.
 2. "General" 탭으로 이동합니다.
