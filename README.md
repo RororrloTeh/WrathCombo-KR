@@ -182,33 +182,33 @@ Wrath Combo는 Questionable의 전투 모듈로 사용될 수 있으며,
 
 # 명령어
 
-| **채팅 명령어**                       | **기능**                                                                                                                                                                   |
+| **채팅 명령어**                       | **기능**                                                                                                                                                                       |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `/wrath`                               | Toggles the main plugin window, where you can enable/disable features, access settings and more.                                                                               |
-| `/wrath pve`                           | Opens the main plugin window, to the PvE tab.                                                                                                                                  |
-| `/wrath pvp`                           | Opens the main plugin window, to the PvP tab.                                                                                                                                  |
-| `/wrath settings`                      | Opens the main plugin window, to the Settings tab.                                                                                                                             |
-| `/wrath autosettings`                  | Opens the main plugin window, to the Auto-Rotation tab.                                                                                                                        |
-| `/wrath <X>`                           | Opens the main plugin window, to a specific job's PvE features.<br>Replace `<X>` with the jobs abbreviation.                                                                   |
-| `/wrath auto`                          | Toggles Auto-Rotation **on** or **off**.                                                                                                                                       |
-| `/wrath auto <X>`                      | Sets Auto-Rotation to a specific state.<br>Replace `<X>` with `on`, `off`, or `toggle`.                                                                                        |
-| `/wrath auto target <X> <Y>`           | Sets Auto-Rotation targeting mode.<br>Replace `<X>` with `damage` or `healer`.<br>For damage, `<Y>` can be: `manual`, `highest_max`, `lowest_max`, `highest_current`, `lowest_current`, `tank_target`, `nearest`, `furthest`.<br>For healer, `<Y>` can be: `manual`, `highest_current`, `lowest_current`.                |
-| `/wrath combo`                         | Toggles action replacing **on** or **off**.<br>When off, actions will not be replaced with combos from the plugin. Auto-Rotation will still work.                              |
-| `/wrath combo <X>`                     | Sets action replacing to a specific state.<br>Replace `<X>` with `on`, `off`, or `toggle`.                                                                                     |
-| `/wrath ignore`                        | Adds a targeted NPC, and all instances of it, to an ignore list for Auto-Rotation's auto-targeting.<br>Manage this list in the Auto-Rotation tab.                              |
-| `/wrath toggle <X>`                    | Toggles a specific feature or option **on** or **off**. Does not work while in combat.<br>Replace `<X>` with its internal name (or ID).                                        |
-| `/wrath set <X>`                       | Turns a specific feature/option **on**. Does not work when in combat.<br>Replace `<X>` with its internal name (or ID).                                                         |
-| `/wrath unset <X>`                     | Turn a specific feature/option **off**. Does not work when in combat.<br>Replace `<X>` with its internal name (or ID).                                                         |
-| `/wrath unsetall`                      | Turns all features and options **off** at once.                                                                                                                                |
-| `/wrath list ...`                      | Prints lists of feature's internal names to the game chat based on filter arguments.<br>Requires an appended filter. See Below.                                                |
-| `/wrath list set`<br/>`/wrath enabled` | Prints a list of all currently enabled features & options in the game chat.                                                                                                    |
-| `/wrath list unset`                    | Prints a list of all currently disabled features & options in the game chat.                                                                                                   |
-| `/wrath list all`                      | Prints a list of every feature & option in the game chat, regardless of state.                                                                                                 |
-| `/wrath list ... <X>`                  | All list commands can also optionally accept a job parameter, to filter the list down to a specific job.<br>Replace `<X>` with the jobs abbreviation.                          |
-| `/wrath opener`                        | Outputs your current openers status to chat.                                                                                                                                   |
-| `/wrath debug`                         | Outputs a debug file to your desktop containing only relevant features/options for your current job.<br>To be sent to developers, to help in bug-fixing. Completely anonymous. |
-| `/wrath debug <X>`                     | Outputs a debug file containing only job-relevant features/options.<br>Replace `<X>` with the jobs abbreviation.                                                               |
-| `/wrath debug all`                     | Outputs a debug file containing all features/options.                                                                                                                          |
+| `/wrath` | 메인 플러그인 창을 열거나 닫습니다. 기능 활성화/비활성화, 설정 접근 등을 할 수 있습니다. |
+| `/wrath pve` | 메인 플러그인 창을 PvE 탭으로 엽니다. |
+| `/wrath pvp` | 메인 플러그인 창을 PvP 탭으로 엽니다. |
+| `/wrath settings` | 메인 플러그인 창을 설정 탭으로 엽니다. |
+| `/wrath autosettings` | 메인 플러그인 창을 자동 딜사이클 탭으로 엽니다. |
+| `/wrath <X>` | 특정 직업의 PvE 기능 탭으로 엽니다. `<X>` 를 직업 약자로 교체하세요. |
+| `/wrath auto` | 자동 딜사이클을 **켜거나** **끕니다**. |
+| `/wrath auto <X>` | 자동 딜사이클을 특정 상태로 설정합니다. `<X>` 를 `on`, `off`, 또는 `toggle` 로 교체하세요. |
+| `/wrath auto target <X> <Y>` | 자동 딜사이클 타겟 모드를 설정합니다. `<X>` 를 `damage` 또는 `healer` 로 교체하세요. damage의 경우 `<Y>` 는 `manual`, `highest_max`, `lowest_max`, `highest_current`, `lowest_current`, `tank_target`, `nearest`, `furthest` 중 선택 가능합니다. healer의 경우 `<Y>` 는 `manual`, `highest_current`, `lowest_current` 중 선택 가능합니다. |
+| `/wrath combo` | 액션 교체를 **켜거나** **끕니다**. 꺼진 경우 플러그인의 콤보로 액션이 교체되지 않으며, 자동 딜사이클은 계속 작동합니다. |
+| `/wrath combo <X>` | 액션 교체를 특정 상태로 설정합니다. `<X>` 를 `on`, `off`, 또는 `toggle` 로 교체하세요. |
+| `/wrath ignore` | 타겟으로 지정한 NPC와 해당 NPC의 모든 인스턴스를 자동 딜사이클의 자동 타겟 무시 목록에 추가합니다. 자동 딜사이클 탭에서 목록을 관리할 수 있습니다. |
+| `/wrath toggle <X>` | 특정 기능 또는 옵션을 **켜거나** **끕니다**. 전투 중에는 작동하지 않습니다. `<X>` 를 내부 이름(또는 ID)으로 교체하세요. |
+| `/wrath set <X>` | 특정 기능/옵션을 **켭니다**. 전투 중에는 작동하지 않습니다. `<X>` 를 내부 이름(또는 ID)으로 교체하세요. |
+| `/wrath unset <X>` | 특정 기능/옵션을 **끕니다**. 전투 중에는 작동하지 않습니다. `<X>` 를 내부 이름(또는 ID)으로 교체하세요. |
+| `/wrath unsetall` | 모든 기능 및 옵션을 한 번에 **끕니다**. |
+| `/wrath list ...` | 필터 인수에 따라 기능의 내부 이름 목록을 게임 채팅에 출력합니다. 필터 인수가 필요합니다. 아래를 참고하세요. |
+| `/wrath list set` `/wrath enabled` | 현재 활성화된 모든 기능 및 옵션 목록을 게임 채팅에 출력합니다. |
+| `/wrath list unset` | 현재 비활성화된 모든 기능 및 옵션 목록을 게임 채팅에 출력합니다. |
+| `/wrath list all` | 상태에 관계없이 모든 기능 및 옵션 목록을 게임 채팅에 출력합니다. |
+| `/wrath list ... <X>` | 모든 list 명령어에 직업 매개변수를 추가하여 특정 직업으로 목록을 필터링할 수 있습니다. `<X>` 를 직업 약자로 교체하세요. |
+| `/wrath opener` | 현재 오프너(입장기) 상태를 채팅에 출력합니다. |
+| `/wrath debug` | 현재 직업에 관련된 기능/옵션만 포함된 디버그 파일을 바탕화면에 출력합니다. 버그 수정을 위해 개발자에게 전달하는 용도로 사용되며, 완전히 익명입니다. |
+| `/wrath debug <X>` | 직업 관련 기능/옵션만 포함된 디버그 파일을 출력합니다. `<X>` 를 직업 약자로 교체하세요. |
+| `/wrath debug all` | 모든 기능/옵션을 포함한 디버그 파일을 출력합니다. |
 
 <p align="right"><a href="#top" alt="Back to top"><img src=/res/readme_images/arrowhead-up.png width ="25"/></a></p>
 </section>
